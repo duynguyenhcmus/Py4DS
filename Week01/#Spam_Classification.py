@@ -52,3 +52,16 @@ print("CART (Tree Prediction) Accuracy by calling metrics: ",metrics.accuracy_sc
 scores=cross_val_score(clf,X,y,cv=5)
 print("scores = {} \n final score = {} \n".format(scores,scores.mean()))
 print("\n")
+
+#Fit Random Forest Classifier
+rdf=RandomForestClassifier()
+rdf.fit(X_train,y_train)
+#Predict testset
+y_pred=rdf.predict(X_test)
+#Evaluate performance of the model
+print("RDF: ",metrics.accuracy_score(y_test,y_pred))
+print("\n")
+#Evaluate a score by cross-validation
+scores=cross_val_score(rdf,X,y,cv=5)
+print("scores = {} \n final score = {} \n".format(scores,scores.mean()))
+print("\n")
