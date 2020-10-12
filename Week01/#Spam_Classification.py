@@ -7,6 +7,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# import warnings filter
+from warnings import simplefilter
+# ignore all future warnings
+simplefilter(action='ignore', category=FutureWarning)
+
 #Pandas Options
 pd.set_option('display.max_colwidth',1000,'display.max_rows',None,\
              'display.max_columns',None)
@@ -16,7 +21,7 @@ mpl.style.use('ggplot')
 sns.set(style='whitegrid')
 
 #Path of dataset 
-path='https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/spam.csv'
+path='https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/spam.csv'
 dataset_pd=pd.read_csv(path)
 dataset_np=np.genfromtxt(path,delimiter=',')
 
@@ -42,6 +47,7 @@ from sklearn import metrics
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
+#Decision Tree 
 clf=DecisionTreeClassifier()
 clf=clf.fit(X_train,y_train)
 y_pred=clf.predict(X_test)
@@ -53,6 +59,21 @@ scores=cross_val_score(clf,X,y,cv=5)
 print("scores = {} \n final score = {} \n".format(scores,scores.mean()))
 print("\n")
 
+#Support Vector Machine
+clf=SVC()
+#Fit SVM Classifier
+clf.fit(X_train,y_train)
+#Predict testset
+y_pred=clf.predict(X_test)
+#Evaluate performance of the model
+print("SVM Accuracy: ",metrics.accuracy_score(y_test,y_pred))
+print("\n")
+#Evaluate a score by cross-validation
+scores=cross_val_score(clf,X,y,cv=5)
+print("scores = {}\n final score = {}".format(scores,scores.mean()))
+print("\n")
+
+#Random Forest
 #Fit Random Forest Classifier
 rdf=RandomForestClassifier()
 rdf.fit(X_train,y_train)
@@ -64,4 +85,17 @@ print("\n")
 #Evaluate a score by cross-validation
 scores=cross_val_score(rdf,X,y,cv=5)
 print("scores = {} \n final score = {} \n".format(scores,scores.mean()))
+print("\n")
+
+#Logistic Regression
+#Fit Logistic Regression Classifier
+lr=LogisticRegression()
+lr.fit(X_train,y_train)
+#Predict testset
+y_pred=lr.predict(X_test)
+#Evaluate performance of the model
+print("LR: ",metrics.accuracy_score(y_test,y_pred))
+#Evaluate a score by cross-validation
+scores=cross_val_score(lr,X,y,cv=5)
+print("scores = {} \n final score = {}\n".format(scores,scores.mean()))
 print("\n")
