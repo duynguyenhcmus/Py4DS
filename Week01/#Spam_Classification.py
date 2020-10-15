@@ -21,7 +21,7 @@ mpl.style.use('ggplot')
 sns.set(style='whitegrid')
 
 #Path of dataset 
-path='https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/spam.csv'
+path='https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/Py4DS_Lab1_Dataset/spam.csv'
 dataset_pd=pd.read_csv(path)
 dataset_np=np.genfromtxt(path,delimiter=',')
 
