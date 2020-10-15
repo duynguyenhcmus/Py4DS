@@ -1,5 +1,9 @@
 ## Load libraries ##
+import numpy as np
 import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
 #import ML models
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier
@@ -11,27 +15,53 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 # Import scikit-learn metrics module for accuracy calculation
 from sklearn import metrics
-#Import libraries for cross validation
+# Import libraries for cross validation
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
+# Import library for label encoder
+from sklearn.preprocessing import LabelEncoder
 
 ## 1. Loading Data ##
-col_names = ['pregnant', 'glucose', 'bp', 'skin', 'insulin', 'bmi', 'pedigree', 'age', 'label']
 # Load dataset
-path = 'https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/Py4DS_Lab1_Dataset/diabetes.csv'
-df = pd.read_csv(path, header=0, names=col_names)
+path = 'https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/Py4DS_Lab1_Dataset/mushrooms.csv'
+df = pd.read_csv(path)
 print(df.head())
-print(df.info())
 
-## 2. Feature Selection ##
-# Split dataset in features and target variable
-feature_cols = ['pregnant', 'insulin', 'bmi', 'age', 'glucose', 'bp', 'pedigree']
-X = df[feature_cols] # Feature
-y = df.label # Target variable
+y = df['class']
+X = df.drop('class', axis=1)
+print(y.head())
+# Transform data to numeric data
+labelencoder = LabelEncoder()
+for column in df.columns:
+    df[column] = labelencoder.fit_transform(df[column])
+print(df.dtypes)
+print(df.head())
+print(df.describe())
+
+#df = df.drop(['veil-type'], axis=1)
+
+## Quick at the characteristics of the data ##
+# df_div = pd.melt(df, "class", var_name="Characteristics")
+# fig, ax = plt.subplots(figsize=(10,5))
+# p = sns.violinplot(ax=ax, x="Characteristics", y="value", hue="class", split=True, data=df_div)
+# df_no_class = df.drop(["class"], axis=1)
+# p.set_xticklabels(rotation=50, labels=list(df_no_class.columns))
+# # Is the data balanced?
+# plt.figure()
+# pd.Series(df['class']).value_counts().sort_index().plot(kind='bar')
+# plt.ylabel('Count')
+# plt.xlabel('class')
+# plt.title('Number of poisonous/edible mushrooms (0=edible, 1=poisonous)')
+# plt.figure(figsize=(14,12))
+# sns.heatmap(df.corr(), linewidths=1, cmap='YlGnBu', annot=True)
+# plt.yticks(rotation=0)
+# plt.show()
 
 ## 3. Splitting Data ##
 # Split dataset into training set and test set
 # 70% training and 30% test
+X = df.drop(['class'], axis=1)
+y = df['class']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
 ## 4. Building Decision Tree Model ##
