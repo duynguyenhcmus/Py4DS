@@ -89,7 +89,7 @@ print("\n")
 
 #Logistic Regression
 #Fit Logistic Regression Classifier
-lr=LogisticRegression()
+lr=LogisticRegression(max_iter=2000)
 lr.fit(X_train,y_train)
 #Predict testset
 y_pred=lr.predict(X_test)
