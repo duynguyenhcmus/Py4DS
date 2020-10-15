@@ -72,5 +72,45 @@ print("CART (Tree Prediction) Accuracy by calling metrics: ",metrics.accuracy_sc
 scores=cross_val_score(clf,X,y,cv=5)
 print("scores = {} \n final score = {} \n".format(scores,scores.mean()))
 print("\n")
-#print("Accuracy of DecisionTreeClassifier Exercise 4: ",metrics.accuracy_score(y_test,y_pred))
+print("Accuracy of DecisionTreeClassifier Exercise 4: ",metrics.accuracy_score(y_test,y_pred))
 
+#Support Vector Machine
+clf=SVC()
+#Fit SVM Classifier
+clf.fit(X_train,y_train)
+#Predict testset
+y_pred=clf.predict(X_test)
+#Evaluate performance of the model
+print("SVM Accuracy: ",metrics.accuracy_score(y_test,y_pred))
+print("\n")
+#Evaluate a score by cross-validation
+scores=cross_val_score(clf,X,y,cv=5)
+print("scores = {}\n final score = {}".format(scores,scores.mean()))
+print("\n")
+
+#Random Forest
+#Fit Random Forest Classifier
+rdf=RandomForestClassifier()
+rdf.fit(X_train,y_train)
+#Predict testset
+y_pred=rdf.predict(X_test)
+#Evaluate performance of the model
+print("RDF: ",metrics.accuracy_score(y_test,y_pred))
+print("\n")
+#Evaluate a score by cross-validation
+scores=cross_val_score(rdf,X,y,cv=5)
+print("scores = {} \n final score = {} \n".format(scores,scores.mean()))
+print("\n")
+
+#Logistic Regression
+#Fit Logistic Regression Classifier
+lr=LogisticRegression(max_iter=2000)
+lr.fit(X_train,y_train)
+#Predict testset
+y_pred=lr.predict(X_test)
+#Evaluate performance of the model
+print("LR: ",metrics.accuracy_score(y_test,y_pred))
+#Evaluate a score by cross-validation
+scores=cross_val_score(lr,X,y,cv=5)
+print("scores = {} \n final score = {}\n".format(scores,scores.mean()))
+print("\n")
