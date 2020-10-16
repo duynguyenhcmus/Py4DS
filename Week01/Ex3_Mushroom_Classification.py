@@ -27,6 +27,7 @@ path = 'https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/ma
 df = pd.read_csv(path)
 print(df.head())
 
+# 2. Data Preprocessing
 y = df['class']
 X = df.drop('class', axis=1)
 print(y.head())
@@ -37,25 +38,6 @@ for column in df.columns:
 print(df.dtypes)
 print(df.head())
 print(df.describe())
-
-#df = df.drop(['veil-type'], axis=1)
-
-## Quick at the characteristics of the data ##
-# df_div = pd.melt(df, "class", var_name="Characteristics")
-# fig, ax = plt.subplots(figsize=(10,5))
-# p = sns.violinplot(ax=ax, x="Characteristics", y="value", hue="class", split=True, data=df_div)
-# df_no_class = df.drop(["class"], axis=1)
-# p.set_xticklabels(rotation=50, labels=list(df_no_class.columns))
-# # Is the data balanced?
-# plt.figure()
-# pd.Series(df['class']).value_counts().sort_index().plot(kind='bar')
-# plt.ylabel('Count')
-# plt.xlabel('class')
-# plt.title('Number of poisonous/edible mushrooms (0=edible, 1=poisonous)')
-# plt.figure(figsize=(14,12))
-# sns.heatmap(df.corr(), linewidths=1, cmap='YlGnBu', annot=True)
-# plt.yticks(rotation=0)
-# plt.show()
 
 ## 3. Splitting Data ##
 # Split dataset into training set and test set
@@ -116,7 +98,7 @@ print("Accuracy of ada boost classifier: ", metrics.accuracy_score(y_test, y_pre
 scores = cross_val_score(abc, X, y, cv=5)
 print("scores = {} \n final score = {} \n".format(scores, scores.mean()))
 
-## 7. Building SVC Model ##
+## 8. Building SVC Model ##
 # Create SVC object
 svc = SVC()
 # Train SVC
@@ -129,7 +111,7 @@ print("Accuracy of SVC: ", metrics.accuracy_score(y_test, y_pred))
 scores = cross_val_score(svc, X, y, cv=5)
 print("scores = {} \n final score = {} \n".format(scores, scores.mean()))
 
-## 8. Building MLP classifier Model ##
+## 9. Building MLP classifier Model ##
 # Create MLP object
 mlp = MLPClassifier()
 # Train MLP
