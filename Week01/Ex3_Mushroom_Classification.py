@@ -30,7 +30,7 @@ print(df.head())
 y = df['class']
 X = df.drop('class', axis=1)
 print(y.head())
-# Transform data to numeric data
+# Transform data to numerical data
 labelencoder = LabelEncoder()
 for column in df.columns:
     df[column] = labelencoder.fit_transform(df[column])
