@@ -17,9 +17,6 @@ sns.set(style='whitegrid')
 
 #Path of dataset 
 path='https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/Py4DS_Lab1_Dataset/xAPI-Edu-Data.csv'
-#dataset_pd=pd.read_csv(path)
-
-#print(dataset_pd.head())
 
 #import ML models
 from sklearn.model_selection import train_test_split
@@ -36,31 +33,15 @@ from sklearn import metrics
 #Import libraries for cross validation
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
-#gender NationalITy PlaceofBirth     StageID GradeID SectionID Topic
-#Semester Relation  raisedhands  VisITedResources  AnnouncementsView
-#Discussion ParentAnsweringSurvey ParentschoolSatisfaction
-#StudentAbsenceDays Class
+
 col_name=['raisedhands', 'VisITedResources','AnnouncementsView','Discussion']
 dataset_pd=pd.read_csv(path)
-#print(dataset_pd.head())
 
 X=dataset_pd[col_name]
-#y=dataset_pd['Class']
-
-#X = dataset_pd[]
 y = dataset_pd['Class']
 
-#print(X.info())
-"""
-from  sklearn.preprocessing import LabelEncoder
-labelencoder=LabelEncoder()
-for column in dataset_pd.columns:
-    dataset_pd[column]=labelencoder.fit_transform(dataset_pd[column])
-#print(X.dtypes)
-"""
-
 X_train,X_test,y_train,y_test=train_test_split(X,y,random_state=42,test_size=0.3)
-
+#Decision Tree Classifier
 clf=DecisionTreeClassifier()
 clf.fit(X_train,y_train)
 y_pred=clf.predict(X_test)

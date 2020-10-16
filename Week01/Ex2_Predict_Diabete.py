@@ -86,7 +86,7 @@ print("Accuracy of ada boost classifier: ", metrics.accuracy_score(y_test, y_pre
 scores = cross_val_score(abc, X, y, cv=5)
 print("scores = {} \n final score = {} \n".format(scores, scores.mean()))
 
-## 7. Building SVC Model ##
+## 8. Building SVC Model ##
 # Create SVC object
 svc = SVC()
 # Train SVC
@@ -99,7 +99,7 @@ print("Accuracy of SVC: ", metrics.accuracy_score(y_test, y_pred))
 scores = cross_val_score(svc, X, y, cv=5)
 print("scores = {} \n final score = {} \n".format(scores, scores.mean()))
 
-## 8. Building MLP classifier Model ##
+## 9. Building MLP classifier Model ##
 # Create MLP object
 mlp = MLPClassifier()
 # Train MLP
