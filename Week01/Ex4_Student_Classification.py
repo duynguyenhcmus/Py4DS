@@ -34,12 +34,14 @@ from sklearn import metrics
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
+#Data Preprocessing
 col_name=['raisedhands', 'VisITedResources','AnnouncementsView','Discussion']
 dataset_pd=pd.read_csv(path)
 
 X=dataset_pd[col_name]
 y = dataset_pd['Class']
 
+#Decision Tree Classifier
 X_train,X_test,y_train,y_test=train_test_split(X,y,random_state=42,test_size=0.3)
 #Decision Tree Classifier
 clf=DecisionTreeClassifier()
@@ -48,6 +50,7 @@ y_pred=clf.predict(X_test)
 
 print("CART (Tree Prediction) Accuracy: {}".format(sum(y_pred==y_test)/len(y_pred)))
 print("CART (Tree Prediction) Accuracy by calling metrics: ",metrics.accuracy_score(y_test,y_pred))
+
 #5-fold cross-validation
 #Evaluate a score by cross-validation
 scores=cross_val_score(clf,X,y,cv=5)
