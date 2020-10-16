@@ -99,7 +99,6 @@ print("Accuracy of SVC: ", metrics.accuracy_score(y_test, y_pred))
 scores = cross_val_score(svc, X, y, cv=5)
 print("scores = {} \n final score = {} \n".format(scores, scores.mean()))
 
-MLPClassifier
 ## 8. Building MLP classifier Model ##
 # Create MLP object
 mlp = MLPClassifier()
