@@ -1,4 +1,4 @@
-## Load libraries ##
+# Load libraries #
 import numpy as np
 import pandas as pd
 # Import ML models
@@ -31,7 +31,7 @@ y=dataset_np[:,-1]
 X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.33,random_state=42)
 print(X_train.shape,"\n\n",X_test.shape,"\n\n",y_train.shape,"\n\n",y_test.shape,"\n\n")
 
-# Decision Tree 
+# Decision Tree Classifier
 clf=DecisionTreeClassifier()
 clf=clf.fit(X_train,y_train)
 y_pred=clf.predict(X_test)
