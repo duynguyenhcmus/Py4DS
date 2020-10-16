@@ -106,7 +106,7 @@ mlp = MLPClassifier()
 mlp = mlp.fit(X_train, y_train)
 # Predict the response for test dataset
 y_pred = mlp.predict(X_test)
-# Model Accuracy, how often is the classifier corret?
+# Model Accuracy of MLP Classifier
 print("Accuracy of MLP classifier: ", metrics.accuracy_score(y_test, y_pred))
 # Evaluate a score by cross validation
 scores = cross_val_score(svc, X, y, cv=5)
