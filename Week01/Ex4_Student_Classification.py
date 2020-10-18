@@ -34,11 +34,23 @@ from sklearn import metrics
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
+from sklearn.preprocessing import LabelEncoder
 #Data Preprocessing
 col_name=['raisedhands', 'VisITedResources','AnnouncementsView','Discussion']
 dataset_pd=pd.read_csv(path)
 
-X=dataset_pd[col_name]
+# 2. Data Preprocessing
+y = dataset_pd['Class']
+X = dataset_pd.drop('Class', axis=1)
+#X=dataset_pd[col_name]
+#y = dataset_pd['Class']
+
+# Transform data to numerical data
+labelencoder = LabelEncoder()
+for column in dataset_pd.columns:
+    dataset_pd[column] = labelencoder.fit_transform(dataset_pd[column])
+
+X = dataset_pd.drop(['Class'], axis=1)
 y = dataset_pd['Class']
 
 #Decision Tree Classifier
@@ -88,7 +100,7 @@ print("\n")
 
 #Logistic Regression
 #Fit Logistic Regression Classifier
-lr=LogisticRegression(max_iter=2000)
+lr=LogisticRegression(max_iter=10000)
 lr.fit(X_train,y_train)
 #Predict testset
 y_pred=lr.predict(X_test)
