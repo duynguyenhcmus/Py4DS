@@ -60,7 +60,7 @@ def remove_outlier(data):
     print('> Shape of data after handling outlier values: ', data_out.shape)
     return data_out
 
-def logistic_regression(x_train, x_test, y_train, y_test):
+def random_forest_classifier(x_train, x_test, y_train, y_test):
     clf = RandomForestClassifier(random_state=1)
     clf = clf.fit(x_train, y_train)
     y_pred = clf.predict(x_test)
@@ -139,8 +139,8 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
     ## 5. Build Logistic Regression Model ##
-    accuracy = logistic_regression(X_train, X_test, y_train, y_test)
-    print("The accuracy of logistic regression algorithm before scaling data: ", accuracy)
+    accuracy = random_forest_classifier(X_train, X_test, y_train, y_test)
+    print("The accuracy of random forest classifier algorithm before scaling data: ", accuracy)
 
     ## 6. Scaling data ##
     # Use Normalizer to scale
@@ -153,22 +153,22 @@ def main():
     x_train_minmax, x_test_minmax = scaling_data(X_train, X_test, method='MinMaxScaler')
 
     ## 7. Build Logistic Regression Model after scaling data ##
-    accuracy_normal = logistic_regression(x_train_normal, x_test_normal, y_train, y_test)
-    accuracy_standard = logistic_regression(x_train_standard, x_test_standard, y_train, y_test)
-    accuracy_robust = logistic_regression(x_train_robust, x_test_robust, y_train, y_test)
-    accuracy_minmax = logistic_regression(x_train_minmax, x_test_minmax, y_train, y_test)
-    print("The accuracy of logistic regression algorithm after using normalizer: ", accuracy_normal)
-    print("The accuracy of logistic regression algorithm after using standard scaler: ", accuracy_standard)
-    print("The accuracy of logistic regression algorithm after using robust scaler: ", accuracy_robust)
-    print("The accuracy of logistic regression algorithm after using min max scaler: ", accuracy_minmax)
+    accuracy_normal = random_forest_classifier(x_train_normal, x_test_normal, y_train, y_test)
+    accuracy_standard = random_forest_classifier(x_train_standard, x_test_standard, y_train, y_test)
+    accuracy_robust = random_forest_classifier(x_train_robust, x_test_robust, y_train, y_test)
+    accuracy_minmax = random_forest_classifier(x_train_minmax, x_test_minmax, y_train, y_test)
+    print("The accuracy of random forest classifier algorithm after using normalizer: ", accuracy_normal)
+    print("The accuracy of random forest classifier algorithm after using standard scaler: ", accuracy_standard)
+    print("The accuracy of random forest classifier algorithm after using robust scaler: ", accuracy_robust)
+    print("The accuracy of random forest classifier algorithm after using min max scaler: ", accuracy_minmax)
     # ========================================================= #
     '''
     With random_state = 1, 
-        The accuracy of logistic regression algorithm before scaling data:  0.6875
-        The accuracy of logistic regression algorithm after using normalizer:  0.75
-        The accuracy of logistic regression algorithm after using standard scaler:  0.75
-        The accuracy of logistic regression algorithm after using robust scaler:  0.75
-        The accuracy of logistic regression algorithm after using min max scaler:  0.6875
+        The accuracy of random forest classifier algorithm before scaling data:  0.6875
+        The accuracy of random forest classifier algorithm after using normalizer:  0.75
+        The accuracy of random forest classifier algorithm after using standard scaler:  0.75
+        The accuracy of random forest classifier algorithm after using robust scaler:  0.75
+        The accuracy of random forest classifier algorithm after using min max scaler:  0.6875
     '''
     # ========================================================= #
 
