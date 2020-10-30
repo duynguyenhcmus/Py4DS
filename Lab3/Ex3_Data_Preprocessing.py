@@ -21,7 +21,7 @@ from sklearn.preprocessing import LabelEncoder
 # Import libraries nomalizer
 from sklearn.preprocessing import Normalizer, StandardScaler, RobustScaler, MinMaxScaler
 
-def plotting_correlation(data):
+def plotting_correlation(data, label):
     #Plotting correlation of Features
     plt.figure(figsize = (14,14))
     plt.title('Correlation plot using Pearson plot')
@@ -30,7 +30,7 @@ def plotting_correlation(data):
     plt.tight_layout()
     plt.show()
     plt.figure(figsize=(15,8))
-    corr = corr.filter(items = ['Man of the Match'])
+    corr = corr.filter(items = [label])
     sns.heatmap(corr, annot=True)
     plt.tight_layout()
     plt.show()
@@ -97,7 +97,7 @@ def main():
     # Encode target variable 'Man of the match' into binary format
     df['Man of the Match'] = df['Man of the Match'].map({'Yes': 1, 'No': 0})
     # Plotting correlation of Features
-    plotting_correlation(df)
+    plotting_correlation(df, 'Man of the Match')
     # ========================================================= #
     '''
     - As 'Own goal Time' and 'Own goals' are having > 90% missing values, filling them with any combination will lead predictive model to false direction. 
@@ -133,7 +133,7 @@ def main():
 
     ## 4. Splitting Data ##
     # Split dataset into training set and test set
-    # 70% training and 30% test
+    # 80% training and 20% test
     X = data_cleaned.drop(['Man of the Match'], axis=1)
     y = data_cleaned['Man of the Match']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
