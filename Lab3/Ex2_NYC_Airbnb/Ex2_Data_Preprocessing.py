@@ -25,7 +25,7 @@ def plotting_correlation(data):
     corr = data.corr()
     sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns, linewidths=.1, cmap="Reds", annot=True)
     plt.tight_layout()
-    plt.show()
+    plt.savefig("heatmap-correlation.jpg")
 
 def label_endcoder(data):
     label = LabelEncoder()
@@ -78,6 +78,7 @@ def main():
     # Load dataset
     path = 'https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab3/Py4DS_Lab3_Dataset/AB_NYC_2019.csv'
     df = pd.read_csv(path)
+    pd.set_option("display.max_columns", 100)
     print(df.head())
 
     ## 2. EDA ##
@@ -121,7 +122,7 @@ def main():
     for i, c in zip(ax.flatten(), boxplot.columns):
         sns.boxplot(boxplot[c], ax = i)
     f.tight_layout()
-    plt.show()
+    plt.savefig("boxplot-outliers.jpg")
     # ========================================================= #
     '''
         As we see on boxplots, we can detect outliers. We need to remove them to avoid leading false direction.

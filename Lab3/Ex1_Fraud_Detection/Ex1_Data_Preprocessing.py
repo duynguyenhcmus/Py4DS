@@ -28,7 +28,7 @@ def plotting_correlation(data):
     plt.title('Correlation plot of Credit Card Transactions features using Pearson plot')
     corr = data.corr()
     sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns, linewidths=.1, cmap="Reds")
-    plt.show()
+    plt.savefig("heatmap-correlation.jpg")
 
 def cleaning_data(data):
     print("> Shape of data before cleaning: ", data.shape)
@@ -74,6 +74,7 @@ def main():
     # Load dataset
     path = '/home/dinh_anh_huy/GitHub/2020-2021/semester-1/python-for-data-science/Lab2/creditcard.csv'
     df = pd.read_csv(path)
+    pd.set_option("display.max_columns", 100)
     print(df.head())
 
     ## 2. EDA ##
