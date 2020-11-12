@@ -37,12 +37,14 @@ def eda_plot(data):
         Param: data - dataframe
         Output: the figure of countplot and heatmap -jpg
     '''
+    #Countplot
     plt.figure(figsize=(15,15))
     sns.countplot(x="1",data=data,linewidth=2,edgecolor=sns.color_palette("dark"))
     plt.title("The countplot of Spam versus Non-Spam Email")
     plt.xlabel("Spam or Non-Spam Email")
     plt.ylabel("The number of Spam versus Non-Spam")
     plt.savefig("Countplot-Spam.jpg")
+    #Heatmap
     plt.figure(figsize=(15,15))
     corr = data.corr()
     sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns,\
@@ -93,7 +95,8 @@ def main():
         Output: The clustering models for prediction
     '''
     ##1. Loading dataset##
-    path='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/Py4DS_Lab4_Dataset/spam.csv'
+    path='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/\
+Py4DS_Lab4_Dataset/spam.csv'
     df=pd.read_csv(path)
     pd.set_option("display.max_columns", 100)
     #Print the number of null value
