@@ -15,8 +15,9 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 #Import Scikit - Learn for model selection
 from sklearn.model_selection import train_test_split
-##Import Scikit - Learn Models
+#Import Scikit - Learn Models
 from sklearn.cluster import KMeans, AgglomerativeClustering, Birch
+from sklearn import metrics
 
 #Label Encoder
 def label_encoder(data):
@@ -30,6 +31,21 @@ def label_encoder(data):
     for col in data_colums:
         data[col] = label.fit_transform(data[col])
     return data
+
+#Remove outlier
+def remove_outlier(data):
+    '''
+        Purpose: helping remove outliers of the dataset.
+        Param: data - DataFrame
+        Output: DataFrame that is outlier-removed
+    '''
+    Q1 = data.quantile(0.25)
+    Q3 = data.quantile(0.75)
+    IQR = Q3 - Q1
+    data_out = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)]
+    print('> Shape of data before handling outlier values: ', data.shape)
+    print('> Shape of data after handling outlier values: ', data_out.shape)
+    return data_out
 
 #Data Cleaning
 def cleaning_data(data):
@@ -73,10 +89,10 @@ def kmeans_algorithm(X_train, X_test, y_train, y_test):
         Param: X_train, X_test, y_train, y_test - ndarray 
         Output: The Accuracy of the K-means Clustering - float64
     '''
-    kmeans=KMeans(n_clusters=3,max_iter=2000,random_state=1)
-    kmeans.fit(X_train,y_train)
-    y_pred=kmeans.fit_predict(X_test)
-    return sum(y_pred==y_test)/len(y_pred)
+    kmeans=KMeans(n_clusters=3,max_iter=2000,random_state=17)
+    kmeans.fit(X_train)
+    y_pred=kmeans.predict(X_test)
+    return metrics.accuracy_score(y_test, y_pred)
 
 #Birch Algorithm
 def birch_algorithm(X_train, X_test, y_train, y_test):
@@ -86,9 +102,9 @@ def birch_algorithm(X_train, X_test, y_train, y_test):
         Output: The Accuracy of the Birch - float64
     '''
     birch=Birch(n_clusters=3)
-    birch.fit(X_train,y_train)
+    birch.fit(X_train)
     birch_pred=birch.predict(X_test)
-    return sum(birch_pred==y_test)/len(birch_pred)
+    return metrics.accuracy_score(y_test, birch_pred)
 
 #Agglomerative Algorithm
 def agglomerative_algorithm(X_train, X_test, y_train, y_test):
@@ -98,9 +114,9 @@ def agglomerative_algorithm(X_train, X_test, y_train, y_test):
         Output: The Accuracy of the Agglomerative - float64
     '''
     agglo=AgglomerativeClustering(n_clusters=3)
-    agglo.fit(X_train,y_train)
+    agglo.fit(X_train)
     agglo_pred=agglo.fit_predict(X_test)
-    return sum(agglo_pred==y_test)/len(agglo_pred)
+    return metrics.accuracy_score(y_test, agglo_pred)
 
 def main():
     '''
@@ -121,20 +137,21 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     ##2. Cleaning Data
     data_cleaned=cleaning_data(df)
 
+    ##Handle Outlier
+    data_cleaned=remove_outlier(data_cleaned)
+
     ##3. Label Encoding Data
-    data_encoded=label_encoder(data_cleaned)
+    data=label_encoder(data_cleaned)
 
     #Plot the boxplot to detect outliers
     plt.figure(figsize=(15,15))
-    sns.boxplot(data=data_encoded)
+    sns.boxplot(data=data)
     plt.xticks(rotation=90)
-    plt.show()
+    plt.savefig("Boxplot-Performance.jpg")
     '''
         As we can see from the boxplot, the NationalITy and PlaceofBirth has
-        a lot of outliers. So we drop these features
+        a lot of outliers.
     '''
-    #Remove NationalITy and PlaceofBirth features
-    data=data_encoded.drop(['NationalITy','PlaceofBirth'],axis=1)
 
     ##4. Exploratory Data Analysis
     eda_plot(data)
@@ -150,8 +167,8 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     #Splitting Data
     X = data.drop(['Class'], axis=1)
     y = data['Class']
-    #Set the size of the test set is 30% of the data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+    #Set the size of the test set is 20% of the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
     ##6. Build KMeans Clustering Algorithm
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
