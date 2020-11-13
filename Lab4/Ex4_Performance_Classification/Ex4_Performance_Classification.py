@@ -16,7 +16,8 @@ from sklearn.preprocessing import LabelEncoder
 #Import Scikit - Learn for model selection
 from sklearn.model_selection import train_test_split
 #Import Scikit - Learn Models
-from sklearn.cluster import KMeans, AgglomerativeClustering, Birch
+from sklearn.cluster import KMeans, Birch, MiniBatchKMeans
+#Import Scikit - Learn Metrics
 from sklearn import metrics
 
 #Label Encoder
@@ -106,17 +107,17 @@ def birch_algorithm(X_train, X_test, y_train, y_test):
     birch_pred=birch.predict(X_test)
     return metrics.accuracy_score(y_test, birch_pred)
 
-#Agglomerative Algorithm
-def agglomerative_algorithm(X_train, X_test, y_train, y_test):
+#MiniBatchKMeans Algorithm
+def minibatchkmeans_algorithm(X_train, X_test, y_train, y_test):
     '''
-        Purpose: Perform Agglomerative Clustering Algorithm for Classification
+        Purpose: Perform MiniBatchKMeans Clustering for Classification
         Param: X_train, X_test, y_train, y_test - ndarray
-        Output: The Accuracy of the Agglomerative - float64
+        Output: The Accuracy of the MiniBatchKMeans - float64
     '''
-    agglo=AgglomerativeClustering(n_clusters=3)
-    agglo.fit(X_train)
-    agglo_pred=agglo.fit_predict(X_test)
-    return metrics.accuracy_score(y_test, agglo_pred)
+    mini=MiniBatchKMeans(n_clusters=3)
+    mini.fit(X_train)
+    y_pred=mini.predict(X_test)
+    return metrics.accuracy_score(y_test,y_pred)
 
 def main():
     '''
@@ -168,7 +169,7 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     X = data.drop(['Class'], axis=1)
     y = data['Class']
     #Set the size of the test set is 20% of the data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=1)
 
     ##6. Build KMeans Clustering Algorithm
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
@@ -178,9 +179,15 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     accuracy_birch=birch_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of Birch: {}".format(accuracy_birch)) 
 
-    ##8. Build Agglomerative Algorithm
-    accuracy_agglomerative=agglomerative_algorithm(X_train,X_test,y_train,y_test)
-    print("The Accuracy of Agglomerative: {}".format(accuracy_agglomerative))
+    ##8. Build MiniBatchKMeans Algorithm
+    accuracy_mini=minibatchkmeans_algorithm(X_train,X_test,y_train,y_test)
+    print("The Accuracy of MiniBatchKMeans: {}".format(accuracy_mini))
+    '''
+        Summary:
+            The Accuracy of KMeans: 0.5416666666666666
+            The Accuracy of Birch: 0.5729166666666666
+            The Accuracy of MiniBatchKMeans: 0.6041666666666666
+    '''
 
 if __name__ == '__main__':
     main()
