@@ -13,9 +13,10 @@ import seaborn as sns
 
 #Import Scikit - Learn for model selection
 from sklearn.model_selection import train_test_split
-
 #Import Scikit - Learn Models
-from sklearn.cluster import KMeans, AgglomerativeClustering, Birch
+from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans
+#Import Scikit - Learn Metrics
+from sklearn import metrics
 
 #Cleaning Data
 def cleaning_data(data):
@@ -60,9 +61,9 @@ def kmeans_algorithm(X_train, X_test, y_train, y_test):
         Output: The Accuracy of the K-means Clustering - float64
     '''
     kmeans=KMeans(n_clusters=2,max_iter=2000,random_state=1)
-    kmeans.fit(X_train,y_train)
+    kmeans.fit(X_train)
     y_pred=kmeans.fit_predict(X_test)
-    return sum(y_pred==y_test)/len(y_pred)
+    return metrics.accuracy_score(y_test,y_pred)
 
 #Agglomerative Algorithm
 def agglomerative_algorithm(X_train, X_test, y_train, y_test):
@@ -72,21 +73,21 @@ def agglomerative_algorithm(X_train, X_test, y_train, y_test):
         Output: The Accuracy of the Agglomerative - float64
     '''
     agglo=AgglomerativeClustering(n_clusters=2)
-    agglo.fit(X_train,y_train)
+    agglo.fit(X_train)
     agglo_pred=agglo.fit_predict(X_test)
-    return sum(agglo_pred==y_test)/len(agglo_pred)
+    return metrics.accuracy_score(y_test,agglo_pred)
 
-#Birch Algorithm
-def birch_algorithm(X_train, X_test, y_train, y_test):
+#MiniBatchKMeans Algorithm
+def MiniBatchKMeans_algorithm(X_train, X_test, y_train, y_test):
     '''
-        Purpose: Perform Birch Clustering Algorithm for Classification
+        Purpose: Perform MiniBatchKMeans Clustering Algorithm for Classification
         Param: X_train, X_test, y_train, y_test - ndarray
-        Output: The Accuracy of the Birch - float64
+        Output: The Accuracy of the MiniBatchKMeans - float64
     '''
-    birch=Birch(n_clusters=2)
-    birch.fit(X_train,y_train)
-    birch_pred=birch.predict(X_test)
-    return sum(birch_pred==y_test)/len(birch_pred)
+    mini=MiniBatchKMeans(n_clusters=2)
+    mini.fit(X_train)
+    mini_pred=mini.predict(X_test)
+    return metrics.accuracy_score(y_test,mini_pred)
 
 def main():
     '''
@@ -109,7 +110,7 @@ Py4DS_Lab4_Dataset/spam.csv'
     data_cleaned=cleaning_data(df)
 
     ##3. Exploratory Data Analysis
-    #eda_plot(df)
+    eda_plot(df)
     '''
         As we can see from the countplot, the number of non-spam emails is half
         as many again as the number of spam emails.
@@ -121,8 +122,8 @@ Py4DS_Lab4_Dataset/spam.csv'
     X=data_cleaned.drop(['1'],axis=1)
     y=data_cleaned['1']
 
-    #The size of test set: 30% of the data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    #The size of test set: 25% of the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
     ##5. Build KMeans Clustering
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
@@ -132,9 +133,15 @@ Py4DS_Lab4_Dataset/spam.csv'
     accuracy_agglomerative=agglomerative_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of Agglomerative: {}".format(accuracy_agglomerative))
 
-    ##7. Build Birch Algorithm
-    accuracy_birch=birch_algorithm(X_train,X_test,y_train,y_test)
-    print("The Accuracy of Birch: {}".format(accuracy_birch))
+    ##7. Build MiniBatchKMeans Algorithm
+    accuracy_mini=MiniBatchKMeans_algorithm(X_train,X_test,y_train,y_test)
+    print("The Accuracy of MiniBatchKMeans: {}".format(accuracy_mini))
+    '''
+        Summary:
+            The Accuracy of KMeans: 0.6216730038022814
+            The Accuracy of Agglomerative: 0.6216730038022814
+            The Accuracy of MiniBatchKMeans: 0.6378326996197718
+    '''
 
 if __name__ == '__main__':
     main()
