@@ -3,10 +3,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import LabelEncoder # import library for label encoder
 from sklearn.model_selection import train_test_split # Import train_test_split function
 from sklearn import metrics # Import scikit-learn metrics module for accuracy calculation
-from sklearn.cluster import KMeans, MiniBatchKMeans, Birch # import scikit-learn KMeans, MiniBatchKMeans and Birch clustering module for clustering data
+from sklearn.cluster import KMeans, AgglomerativeClustering, Birch # import scikit-learn KMeans, AgglomerativeClustering and Birch clustering module for clustering data
 from sklearn.preprocessing import RobustScaler # import scikit-learn RobustScaler for scaling data
+
+def label_encoder(data):
+    '''
+        - This function helps encode data
+        - Parameters: 
+            + data : DataFrame
+                Data Frame is needed to encode
+        - Return a DataFrame that is encoded
+    '''
+    label = LabelEncoder()
+    data_colums = data.dtypes.pipe(lambda X: X[X=='object']).index
+    for col in data_colums:
+        data[col] = label.fit_transform(data[col])
+    return data
 
 def remove_outlier(data):
     '''
@@ -25,25 +40,7 @@ def remove_outlier(data):
     print('> Shape of data after handling outlier values: ', data_out.shape)
     return data_out
 
-def robust_scaler(x_train, x_test):
-    '''
-        - This function helps scale data without label from train, test data by Robust Scaler Model.
-        - Parameters:
-            + x_train : DataFrame
-                DataFrame is used to train.
-            + x_test: DataFrame
-                DataFrame is used to test.
-        Returns: DataFrames x_train_scaled and x_test_scaled
-            Return scaled train, test data.
-    '''
-    x_scale = RobustScaler()
-    x_scale.fit(x_train)
-    x_train_scaled = x_scale.transform(x_train)
-    x_scale.fit(x_test)
-    x_test_scaled = x_scale.transform(x_test)
-    return x_train_scaled, x_test_scaled
-
-def clustering_accuracy(x_train, x_test, y_test, model='MiniBatchKMeans', n_clusters=2, random_state=17):
+def clustering_accuracy(x_train, x_test, y_test, model='AgglomerativeClustering', n_clusters=2, random_state=10):
     '''
         - This function helps calculate accuracy between y_pred and y_test by using model
         - Parameters:
@@ -53,7 +50,7 @@ def clustering_accuracy(x_train, x_test, y_test, model='MiniBatchKMeans', n_clus
                 DataFrame is used to test
             + y_test : DataFrame
                 DataFrame is used to compare with the predicted label
-            + model : string, {'MiniBatchKMeans', 'KMeans', 'Birch'}, default = 'MiniBatchKMeans'
+            + model : string, {'AgglomerativeClustering', 'KMeans', 'Birch'}, default = 'AgglomerativeClustering'
                 Use model in scikit-learn cluster
             + n_cluster : int, default = 2
                 The dimension of the projection subspace.
@@ -62,19 +59,23 @@ def clustering_accuracy(x_train, x_test, y_test, model='MiniBatchKMeans', n_clus
         - Returns: float
             This function returns the accuracy between y_test and y_pred
     '''
-    clustering = {'MiniBatchKMeans': MiniBatchKMeans(n_clusters=n_clusters, random_state=random_state),
+    clustering = {'AgglomerativeClustering': AgglomerativeClustering(n_clusters=n_clusters, linkage="average"),
                   'Birch': Birch(n_clusters=n_clusters),
                   'KMeans': KMeans(n_clusters=n_clusters, random_state=random_state)}
     clustering[model].fit(x_train)
-    y_pred = clustering[model].predict(x_test)
+    if model == 'AgglomerativeClustering':
+        y_pred = clustering[model].fit_predict(x_test)
+    else:
+        y_pred = clustering[model].predict(x_test)
     return metrics.accuracy_score(y_test, y_pred)
 
 def main():
     # ======================================================================= #
     ''' Load dataset '''
     # ======================================================================= #
-    path = 'https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/Py4DS_Lab4_Dataset/diabetes.csv'
+    path = 'https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/Py4DS_Lab4_Dataset/mushrooms.csv'
     df = pd.read_csv(path)
+    pd.set_option("display.max_columns", 100)
     print("*"*80)
     print(">> Dataset")
     print(df.head())
@@ -82,9 +83,18 @@ def main():
     # ======================================================================= #
     ''' Preprocessing '''
     # ======================================================================= #
-    # Show information of dataset
+    # Show information of dataset before encoding
     print("*"*80)
-    print(">> Information of dataset")
+    print(">> Information of dataset before encoding")
+    print(df.info())
+    # Encoder dataset
+    print("*"*80)
+    print(">> Encoder dataset")
+    df = label_encoder(df)
+    print(df.head())
+    # Show information of dataset after encoding
+    print("*"*80)
+    print(">> Information of dataset after encoding")
     print(df.info())
     # Describe dataset
     print("*"*80)
@@ -130,30 +140,28 @@ def main():
     # ======================================================================= #
     # Split dataset into training set and test set
     # 75% training and 25% test
-    X = data_cleaned.drop(['Outcome'], axis=1)
-    y = data_cleaned['Outcome']
+    X = data_cleaned.drop(['class'], axis=1)
+    y = data_cleaned['class']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=1)
     # Train KMeans model
     print("*"*80)
     print(">> Train model:")
-    ## Scaling data
-    X_train, X_test = robust_scaler(X_train, X_test)
     ## Calculate the accuracy
     n_clusters = len(np.unique(y_train))
-    acc_minibatchkmeans = clustering_accuracy(X_train, X_test, y_test, model='MiniBatchKMeans', n_clusters=n_clusters)
-    acc_kmeans = clustering_accuracy(X_train, X_test, y_test, model='KMeans', n_clusters=n_clusters)
+    acc_agglomerativeclustering = clustering_accuracy(X_train, X_test, y_test, model='AgglomerativeClustering', n_clusters=n_clusters)
+    acc_kmeans = clustering_accuracy(X_train, X_test, y_test, model='KMeans', n_clusters=n_clusters, random_state=10)
     acc_birch = clustering_accuracy(X_train, X_test, y_test, model='Birch', n_clusters=n_clusters)
-    print(f"- The accuracy of kmeans clustering algorithm:\t\t{acc_kmeans}")
-    print(f"- The accuracy of minibatch kmeans clustering algorithm:{acc_minibatchkmeans}")
-    print(f"- The accuracy of birch clustering algorithm:\t\t{acc_birch}")
-
+    print(f"- The accuracy of kmeans clustering algorithm:\t\t\t{acc_kmeans}")
+    print(f"- The accuracy of minibatch agglomerative clustering algorithm:\t{acc_agglomerativeclustering}")
+    print(f"- The accuracy of birch clustering algorithm:\t\t\t{acc_birch}")
+   
     # ======================================================================= #
     ''' Summary '''
     # ======================================================================= #
     '''
-        - The accuracy of kmeans clustering algorithm:          0.74375
-        - The accuracy of minibatch kmeans clustering algorithm:0.76875
-        - The accuracy of birch clustering algorithm:           0.75625
+        - The accuracy of kmeans clustering algorithm:                  0.8522222222222222
+        - The accuracy of minibatch agglomerative clustering algorithm: 0.8522222222222222
+        - The accuracy of birch clustering algorithm:                   0.8522222222222222
     '''
 
 if __name__ == '__main__':
