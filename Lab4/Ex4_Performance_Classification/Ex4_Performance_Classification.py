@@ -140,6 +140,7 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     '''
         As we can see, there are no null values on the dataset.
     '''
+    
     ##3. Cleaning Data
     data_cleaned=cleaning_data(df)
 
