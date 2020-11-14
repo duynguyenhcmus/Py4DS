@@ -87,6 +87,13 @@ def main():
     print("*"*80)
     print(">> Information of dataset before preprocessing")
     print(df.info())
+    # % Missing values
+    print("*"*80)
+    print(">> Percent of missing values in dataset")
+    missing_values = df.columns[df.columns == '?'].sum().sort_values(ascending = False)
+    percentage_missing_values = (missing_values / len(df)) * 100
+    missing_values = pd.concat([missing_values, percentage_missing_values], axis = 1, keys= ['Missing values', '% Missing'])
+    print(missing_values)
     # Drop rows contain missing values ('?')
     df = df[df['stalk-root'] != '?']
     # Encoder dataset
@@ -102,13 +109,7 @@ def main():
     print("*"*80)
     print(">> Describe dataset")
     print(df.describe())
-    # % Missing values
-    print("*"*80)
-    print(">> Percent of missing values in dataset")
-    missing_values = df.isnull().sum().sort_values(ascending = False)
-    percentage_missing_values = (missing_values / len(df)) * 100
-    missing_values = pd.concat([missing_values, percentage_missing_values], axis = 1, keys= ['Missing values', '% Missing'])
-    print(missing_values)
+    
     # Select duplicate rows except first occurrence based on all columns
     print("*"*80)
     print(">> Duplicate Rows except first occurrence based on all columns are:")

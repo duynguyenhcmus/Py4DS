@@ -148,7 +148,7 @@ def main():
     df=pd.read_csv(path)
     pd.set_option("display.max_columns", 100)
     df.columns = df.columns.str.replace(' ', '')
-    df=label_encoder(df)
+    print(df.shape)
     #Print the number of null value
     print(df.isnull().sum().sort_values(ascending = False))
     '''
