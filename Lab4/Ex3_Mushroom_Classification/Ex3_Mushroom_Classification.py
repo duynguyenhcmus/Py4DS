@@ -6,7 +6,7 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder # import library for label encoder
 from sklearn.model_selection import train_test_split # Import train_test_split function
 from sklearn import metrics # Import scikit-learn metrics module for accuracy calculation
-from sklearn.cluster import KMeans, AgglomerativeClustering, Birch # import scikit-learn KMeans, AgglomerativeClustering and Birch clustering module for clustering data
+from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans, Birch # import scikit-learn KMeans, AgglomerativeClustering and Birch clustering module for clustering data
 from sklearn.preprocessing import RobustScaler # import scikit-learn RobustScaler for scaling data
 
 def label_encoder(data):
@@ -40,33 +40,33 @@ def remove_outlier(data):
     print('> Shape of data after handling outlier values: ', data_out.shape)
     return data_out
 
-def clustering_accuracy(x_train, x_test, y_test, model='AgglomerativeClustering', n_clusters=2, random_state=10):
+def clustering_accuracy(X_train, X_test, y_test, model='AgglomerativeClustering', n_clusters=2, random_state=196):
     '''
         - This function helps calculate accuracy between y_pred and y_test by using model
         - Parameters:
-            + x_train : DataFrame
+            + X_train : DataFrame
                 DataFrame is used to train
-            + x_test : DataFrame
+            + X_test : DataFrame
                 DataFrame is used to test
             + y_test : DataFrame
                 DataFrame is used to compare with the predicted label
-            + model : string, {'AgglomerativeClustering', 'KMeans', 'Birch'}, default = 'AgglomerativeClustering'
+            + model : string, {'AgglomerativeClustering', 'KMeans', 'MiniBatchKMeans'}, default = 'AgglomerativeClustering'
                 Use model in scikit-learn cluster
             + n_cluster : int, default = 2
                 The dimension of the projection subspace.
-            + random_state : int, default = 17
+            + random_state : int, default = 196
                 Determines random number generation for centroid initialization. Use an int to make the randomness deterministic. 
         - Returns: float
             This function returns the accuracy between y_test and y_pred
     '''
     clustering = {'AgglomerativeClustering': AgglomerativeClustering(n_clusters=n_clusters, linkage="average"),
-                  'Birch': Birch(n_clusters=n_clusters),
+                  'MiniBatchKMeans': MiniBatchKMeans(n_clusters=n_clusters, random_state=random_state),
                   'KMeans': KMeans(n_clusters=n_clusters, random_state=random_state)}
-    clustering[model].fit(x_train)
+    clustering[model].fit(X_train)
     if model == 'AgglomerativeClustering':
-        y_pred = clustering[model].fit_predict(x_test)
+        y_pred = clustering[model].fit_predict(X_test)
     else:
-        y_pred = clustering[model].predict(x_test)
+        y_pred = clustering[model].predict(X_test)
     return metrics.accuracy_score(y_test, y_pred)
 
 def main():
@@ -83,15 +83,17 @@ def main():
     # ======================================================================= #
     ''' Preprocessing '''
     # ======================================================================= #
-    # Show information of dataset before encoding
+    # Show information of dataset before preprocessing
     print("*"*80)
-    print(">> Information of dataset before encoding")
+    print(">> Information of dataset before preprocessing")
     print(df.info())
+    # Drop rows contain missing values ('?')
+    df = df[df['stalk-root'] != '?']
     # Encoder dataset
     print("*"*80)
     print(">> Encoder dataset")
     df = label_encoder(df)
-    print(df.head())
+    print(df.tail())
     # Show information of dataset after encoding
     print("*"*80)
     print(">> Information of dataset after encoding")
@@ -148,20 +150,21 @@ def main():
     print(">> Train model:")
     ## Calculate the accuracy
     n_clusters = len(np.unique(y_train))
-    acc_agglomerativeclustering = clustering_accuracy(X_train, X_test, y_test, model='AgglomerativeClustering', n_clusters=n_clusters)
-    acc_kmeans = clustering_accuracy(X_train, X_test, y_test, model='KMeans', n_clusters=n_clusters, random_state=10)
-    acc_birch = clustering_accuracy(X_train, X_test, y_test, model='Birch', n_clusters=n_clusters)
-    print(f"- The accuracy of kmeans clustering algorithm:\t\t\t{acc_kmeans}")
-    print(f"- The accuracy of minibatch agglomerative clustering algorithm:\t{acc_agglomerativeclustering}")
-    print(f"- The accuracy of birch clustering algorithm:\t\t\t{acc_birch}")
+    random_state = 196
+    acc_agglomerative = clustering_accuracy(X_train, X_test, y_test, model='AgglomerativeClustering', n_clusters=n_clusters)
+    acc_kmeans = clustering_accuracy(X_train, X_test, y_test, model='KMeans', n_clusters=n_clusters, random_state=random_state)
+    acc_mini = clustering_accuracy(X_train, X_test, y_test, model='MiniBatchKMeans', n_clusters=n_clusters, random_state=random_state)
+    print(f"- The accuracy of kmeans clustering algorithm:\t\t{acc_kmeans}")
+    print(f"- The accuracy of agglomerative clustering algorithm:\t{acc_agglomerative}")
+    print(f"- The accuracy of minibatch clustering algorithm:\t{acc_mini}")
    
     # ======================================================================= #
     ''' Summary '''
     # ======================================================================= #
     '''
-        - The accuracy of kmeans clustering algorithm:                  0.8522222222222222
-        - The accuracy of minibatch agglomerative clustering algorithm: 0.8522222222222222
-        - The accuracy of birch clustering algorithm:                   0.8522222222222222
+        - The accuracy of kmeans clustering algorithm:          0.9090909090909091
+        - The accuracy of agglomerative clustering algorithm:   0.9545454545454546
+        - The accuracy of minibatch clustering algorithm:       0.9131016042780749
     '''
 
 if __name__ == '__main__':

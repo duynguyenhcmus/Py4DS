@@ -16,9 +16,10 @@ from sklearn.preprocessing import LabelEncoder
 #Import Scikit - Learn for model selection
 from sklearn.model_selection import train_test_split
 #Import Scikit - Learn Models
-from sklearn.cluster import KMeans, Birch, MiniBatchKMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans, AgglomerativeClustering
 #Import Scikit - Learn Metrics
 from sklearn import metrics
+
 
 #Label Encoder
 def label_encoder(data):
@@ -56,6 +57,7 @@ def cleaning_data(data):
         Output: The cleaned DataFrame
     '''
     # Remove duplicate values
+    print(id(data))
     data.drop_duplicates(subset = data.columns.values[:-1], keep = 'first', inplace = True)
     # Remove missing values
     data.dropna()
@@ -90,22 +92,22 @@ def kmeans_algorithm(X_train, X_test, y_train, y_test):
         Param: X_train, X_test, y_train, y_test - ndarray 
         Output: The Accuracy of the K-means Clustering - float64
     '''
-    kmeans=KMeans(n_clusters=3,max_iter=2000,random_state=17)
+    kmeans=KMeans(n_clusters=3 ,random_state=6)
     kmeans.fit(X_train)
     y_pred=kmeans.predict(X_test)
     return metrics.accuracy_score(y_test, y_pred)
 
-#Birch Algorithm
-def birch_algorithm(X_train, X_test, y_train, y_test):
+#Agglomerative Algorithm
+def Agglomerative_algorithm(X_train, X_test, y_train, y_test):
     '''
-        Purpose: Perform Birch Clustering Algorithm for Classification
+        Purpose: Perform Agglomerative Clustering Algorithm for Classification
         Param: X_train, X_test, y_train, y_test - ndarray
-        Output: The Accuracy of the Birch - float64
+        Output: The Accuracy of the Agglomerative - float64
     '''
-    birch=Birch(n_clusters=3)
-    birch.fit(X_train)
-    birch_pred=birch.predict(X_test)
-    return metrics.accuracy_score(y_test, birch_pred)
+    Agglomerative=AgglomerativeClustering(n_clusters=3, linkage="average", affinity='l1')
+    Agglomerative.fit(X_train)
+    Agglomerative_pred=Agglomerative.fit_predict(X_test)
+    return metrics.accuracy_score(y_test, Agglomerative_pred)
 
 #MiniBatchKMeans Algorithm
 def minibatchkmeans_algorithm(X_train, X_test, y_train, y_test):
@@ -114,7 +116,7 @@ def minibatchkmeans_algorithm(X_train, X_test, y_train, y_test):
         Param: X_train, X_test, y_train, y_test - ndarray
         Output: The Accuracy of the MiniBatchKMeans - float64
     '''
-    mini=MiniBatchKMeans(n_clusters=3)
+    mini=MiniBatchKMeans(n_clusters=3, random_state=6)
     mini.fit(X_train)
     y_pred=mini.predict(X_test)
     return metrics.accuracy_score(y_test,y_pred)
@@ -129,7 +131,8 @@ def main():
     path='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/\
 Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     df=pd.read_csv(path)
-
+    print(df.head())
+    df=label_encoder(df)
     ##Print the number of null value
     print(df.isnull().sum().sort_values(ascending = False))
     '''
@@ -139,10 +142,10 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     data_cleaned=cleaning_data(df)
 
     ##Handle Outlier
-    data_cleaned=remove_outlier(data_cleaned)
+    data=remove_outlier(data_cleaned)
 
     ##3. Label Encoding Data
-    data=label_encoder(data_cleaned)
+    
 
     #Plot the boxplot to detect outliers
     plt.figure(figsize=(15,15))
@@ -175,18 +178,19 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of KMeans: {}".format(accuracy_kmeans))
 
-    ##7. Build Birch Algorithm
-    accuracy_birch=birch_algorithm(X_train,X_test,y_train,y_test)
-    print("The Accuracy of Birch: {}".format(accuracy_birch)) 
+    ##7. Build Agglomerative Algorithm
+    accuracy_Agglomerative=Agglomerative_algorithm(X_train,X_test,y_train,y_test)
+    print("The Accuracy of Agglomerative: {}".format(accuracy_Agglomerative)) 
 
     ##8. Build MiniBatchKMeans Algorithm
     accuracy_mini=minibatchkmeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of MiniBatchKMeans: {}".format(accuracy_mini))
+
     '''
         Summary:
-            The Accuracy of KMeans: 0.5416666666666666
-            The Accuracy of Birch: 0.5729166666666666
-            The Accuracy of MiniBatchKMeans: 0.6041666666666666
+            The Accuracy of KMeans: 0.6805555555555556
+            The Accuracy of Agglomerative: 0.6666666666666666
+            The Accuracy of MiniBatchKMeans: 0.6666666666666666
     '''
 
 if __name__ == '__main__':
