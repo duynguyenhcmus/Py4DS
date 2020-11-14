@@ -11,8 +11,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Import library for label encoder
-from sklearn.preprocessing import LabelEncoder
 #Import Scikit - Learn for model selection
 from sklearn.model_selection import train_test_split
 #Import Scikit - Learn Models
@@ -21,19 +19,6 @@ from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans
 from sklearn import metrics
 #Import scikit-learn RobustScaler for scaling data
 from sklearn.preprocessing import RobustScaler
-
-#Label Encoder
-def label_encoder(data):
-    '''
-        Purpose: Using Label Encoder to transform the categorical data
-        Param: data - DataFrame
-        Output: the encoded DataFrame 
-    '''
-    label = LabelEncoder()
-    data_colums = data.dtypes.pipe(lambda X: X[X=='object']).index
-    for col in data_colums:
-        data[col] = label.fit_transform(data[col])
-    return data
 
 #Cleaning Data
 def cleaning_data(data):
@@ -151,22 +136,19 @@ def main():
     pd.set_option("display.max_columns", 100)
     df.columns = df.columns.str.replace(' ', '')
 
-    ##2. Label Encoding
-    df=label_encoder(df)
-
-    ##3. Print the number of null value
+    ##2. Print the number of null value
     print("-"*80)
     print(df.isnull().sum().sort_values(ascending = False))
     '''
         As we can see, there are no null values on the dataset.
     '''
 
-    ##4. Cleaning Data
+    ##3. Cleaning Data
     print("-"*80)
     data_cleaned=cleaning_data(df)
     data_cleaned=remove_outlier(data_cleaned)
 
-    ##5. Exploratory Data Analysis
+    ##4. Exploratory Data Analysis
     print("-"*80)
     eda_plot(df)
     '''
@@ -176,25 +158,25 @@ def main():
         As we can see from the heatmap, there is a strong correlation between 
         features in the middle the heatmap from 0.16 to 0.27.
     '''
-    ##6. Splitting Data
+    ##5. Splitting Data
     X=data_cleaned.drop(['spam'],axis=1)
     y=data_cleaned['spam']
 
     #The size of test set: 25% of the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 1)
 
-    ##7. Scaling data
+    ##6. Scaling data
     X_train, X_test = robust_scaler(X_train, X_test)
 
-    ##8. Build Birch Algorithm
+    ##7. Build Birch Algorithm
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of KMeans: {}".format(accuracy_kmeans)) 
 
-    ##9. Build Agglomerative Algorithm
+    ##8. Build Agglomerative Algorithm
     accuracy_agglomerative=agglomerative_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of Agglomerative: {}".format(accuracy_agglomerative))
 
-    ##10. Build MiniBatchKMeans Algorithm
+    ##9. Build MiniBatchKMeans Algorithm
     accuracy_mini=MiniBatchKMeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of MiniBatchKMeans: {}".format(accuracy_mini))
     '''
@@ -203,7 +185,6 @@ def main():
             The Accuracy of Agglomerative: 0.896551724137931
             The Accuracy of MiniBatchKMeans: 0.8620689655172413
     '''
-
 
 if __name__ == '__main__':
     main()
