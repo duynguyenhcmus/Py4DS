@@ -19,7 +19,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.cluster import KMeans, AgglomerativeClustering, MiniBatchKMeans
 #Import Scikit - Learn Metrics
 from sklearn import metrics
-from sklearn.preprocessing import RobustScaler # import scikit-learn RobustScaler for scaling data
+#Import scikit-learn RobustScaler for scaling data
+from sklearn.preprocessing import RobustScaler
 
 #Label Encoder
 def label_encoder(data):
@@ -144,21 +145,34 @@ def main():
         Output: The clustering models for prediction
     '''
     ##1. Loading dataset##
+    print("-"*80)
     path='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/Py4DS_Lab4_Dataset/spam_original.csv'
     df=pd.read_csv(path)
     pd.set_option("display.max_columns", 100)
     df.columns = df.columns.str.replace(' ', '')
+<<<<<<< HEAD
     print(df.shape)
     #Print the number of null value
+=======
+
+    ##2. Label Encoding
+    df=label_encoder(df)
+
+    ##3. Print the number of null value
+    print("-"*80)
+>>>>>>> 2c864612f5fa166e132ff62681114db00eadfee5
     print(df.isnull().sum().sort_values(ascending = False))
     '''
         As we can see, there are no null values on the dataset.
     '''
 
-    ##2. Cleaning Data
+    ##4. Cleaning Data
+    print("-"*80)
     data_cleaned=cleaning_data(df)
     data_cleaned=remove_outlier(data_cleaned)
-    ##3. Exploratory Data Analysis
+
+    ##5. Exploratory Data Analysis
+    print("-"*80)
     eda_plot(df)
     '''
         As we can see from the countplot, the number of non-spam emails is half
@@ -167,23 +181,25 @@ def main():
         As we can see from the heatmap, there is a strong correlation between 
         features in the middle the heatmap from 0.16 to 0.27.
     '''
-    ##4. Splitting Data
+    ##6. Splitting Data
     X=data_cleaned.drop(['spam'],axis=1)
     y=data_cleaned['spam']
 
     #The size of test set: 25% of the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 1)
-    ## Scaling data
+
+    ##7. Scaling data
     X_train, X_test = robust_scaler(X_train, X_test)
-    ##5. Build Birch Algorithm
+
+    ##8. Build Birch Algorithm
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of KMeans: {}".format(accuracy_kmeans)) 
 
-    ##6. Build Agglomerative Algorithm
+    ##9. Build Agglomerative Algorithm
     accuracy_agglomerative=agglomerative_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of Agglomerative: {}".format(accuracy_agglomerative))
 
-    ##7. Build MiniBatchKMeans Algorithm
+    ##10. Build MiniBatchKMeans Algorithm
     accuracy_mini=MiniBatchKMeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of MiniBatchKMeans: {}".format(accuracy_mini))
     '''

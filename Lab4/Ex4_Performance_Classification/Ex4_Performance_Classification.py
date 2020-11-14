@@ -3,7 +3,6 @@
     Ex4: Using xAPI-Edu-Data.csv dataset to perform an Exploratory Data Analysis (EDA),
     Data Cleaning, Clustering Models for prediction
 '''
-
 #Import Libraries
 import numpy as np
 import pandas as pd
@@ -11,7 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Import library for label encoder
+#Import library for label encoder
 from sklearn.preprocessing import LabelEncoder
 #Import Scikit - Learn for model selection
 from sklearn.model_selection import train_test_split
@@ -19,7 +18,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.cluster import KMeans, MiniBatchKMeans, AgglomerativeClustering
 #Import Scikit - Learn Metrics
 from sklearn import metrics
-
 
 #Label Encoder
 def label_encoder(data):
@@ -57,7 +55,6 @@ def cleaning_data(data):
         Output: The cleaned DataFrame
     '''
     # Remove duplicate values
-    print(id(data))
     data.drop_duplicates(subset = data.columns.values[:-1], keep = 'first', inplace = True)
     # Remove missing values
     data.dropna()
@@ -128,26 +125,29 @@ def main():
         Output: The clustering models for prediction
     '''
     ##1. Loading Dataset
+    print("-"*80)
     path='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab4/\
 Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
     df=pd.read_csv(path)
     print(df.head())
+
+    ##2. Label Encoding
+    print("-"*80)
     df=label_encoder(df)
+
     ##Print the number of null value
     print(df.isnull().sum().sort_values(ascending = False))
     '''
         As we can see, there are no null values on the dataset.
     '''
-    ##2. Cleaning Data
+    ##3. Cleaning Data
     data_cleaned=cleaning_data(df)
 
-    ##Handle Outlier
+    ##4. Handle Outlier
+    print("-"*80)
     data=remove_outlier(data_cleaned)
 
-    ##3. Label Encoding Data
-    
-
-    #Plot the boxplot to detect outliers
+    ##5. Plot the boxplot to detect outliers
     plt.figure(figsize=(15,15))
     sns.boxplot(data=data)
     plt.xticks(rotation=90)
@@ -157,7 +157,7 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
         a lot of outliers.
     '''
 
-    ##4. Exploratory Data Analysis
+    ##6. Exploratory Data Analysis
     eda_plot(data)
     '''
         As we can see from the heatmap, there is a strong inverse correlation
@@ -167,25 +167,26 @@ Py4DS_Lab4_Dataset/xAPI-Edu-Data.csv'
         balance.
     '''
 
-    ##5. Splitting Training and Test set
+    ##7. Splitting Training and Test set
     #Splitting Data
     X = data.drop(['Class'], axis=1)
     y = data['Class']
+
     #Set the size of the test set is 20% of the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=1)
+    print("-"*80)
 
-    ##6. Build KMeans Clustering Algorithm
+    ##8. Build KMeans Clustering Algorithm
     accuracy_kmeans=kmeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of KMeans: {}".format(accuracy_kmeans))
 
-    ##7. Build Agglomerative Algorithm
+    ##9. Build Agglomerative Algorithm
     accuracy_Agglomerative=Agglomerative_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of Agglomerative: {}".format(accuracy_Agglomerative)) 
 
-    ##8. Build MiniBatchKMeans Algorithm
+    ##10. Build MiniBatchKMeans Algorithm
     accuracy_mini=minibatchkmeans_algorithm(X_train,X_test,y_train,y_test)
     print("The Accuracy of MiniBatchKMeans: {}".format(accuracy_mini))
-
     '''
         Summary:
             The Accuracy of KMeans: 0.6805555555555556
