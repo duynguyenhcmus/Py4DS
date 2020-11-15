@@ -154,8 +154,6 @@ def main():
     '''
         As we can see from the countplot, the number of non-spam emails is half
         as many again as the number of spam emails.
-        As we can see from the heatmap, there is a strong correlation between 
-        features in the middle the heatmap from 0.16 to 0.27.
     '''
     ##5. Splitting Data
     X=data_cleaned.drop(['spam'],axis=1)
