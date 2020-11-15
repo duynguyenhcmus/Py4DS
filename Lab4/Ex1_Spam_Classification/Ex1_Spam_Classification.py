@@ -135,14 +135,9 @@ def main():
     df=pd.read_csv(path)
     pd.set_option("display.max_columns", 100)
     df.columns = df.columns.str.replace(' ', '')
-<<<<<<< HEAD
-    print(df.shape)
-    #Print the number of null value
-=======
 
     ##2. Print the number of null value
     print("-"*80)
->>>>>>> 2c864612f5fa166e132ff62681114db00eadfee5
     print(df.isnull().sum().sort_values(ascending = False))
     '''
         As we can see, there are no null values on the dataset.
@@ -159,12 +154,14 @@ def main():
     '''
         As we can see from the countplot, the number of non-spam emails is half
         as many again as the number of spam emails.
+        As we can see from the heatmap, there is a strong correlation between 
+        features in the middle the heatmap from 0.16 to 0.27.
     '''
     ##5. Splitting Data
     X=data_cleaned.drop(['spam'],axis=1)
     y=data_cleaned['spam']
 
-    #The size of test set: 25% of the data 
+    #The size of test set: 25% of the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 1)
 
     ##6. Scaling data
@@ -190,7 +187,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 
 
