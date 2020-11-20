@@ -1,3 +1,8 @@
+'''
+    Describe
+    ! Note: comment to strange lib
+'''
+
 ## Load libraries ##
 import numpy as np
 import pandas as pd
@@ -5,23 +10,27 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 #import ML models
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 # Import train_test_split function
 from sklearn.model_selection import train_test_split
 # Import scikit-learn metrics module for accuracy calculation
 from sklearn import metrics
-# Import libraries for cross validation
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
 # Import library for label encoder
 from sklearn.preprocessing import LabelEncoder
 # Import libraries nomalizer
 from sklearn.preprocessing import Normalizer, StandardScaler, RobustScaler, MinMaxScaler
 
 def plotting_correlation(data):
+    '''
+        Purpose:
+        Param / Input:
+            + Type?
+            + To do?
+            + Describe
+        Output / Return:
+            + Type?
+            + Meaning?
+    '''
     print(data.corr())
     #Plotting correlation of Features
     plt.figure(figsize = (14,14))

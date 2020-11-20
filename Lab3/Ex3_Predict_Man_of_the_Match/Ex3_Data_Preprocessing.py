@@ -56,7 +56,8 @@ def remove_outlier(data):
     Q1 = data.quantile(0.25)
     Q3 = data.quantile(0.75)
     IQR = Q3 - Q1
-    data_out = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)]
+    data_out = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR)))\
+        .any(axis=1)]
     print('> Shape of data after handling outlier values: ', data_out.shape)
     return data_out
 
@@ -101,11 +102,16 @@ def main():
     plotting_correlation(df, 'Man of the Match')
     # ========================================================= #
     '''
-    - As 'Own goal Time' and 'Own goals' are having > 90% missing values, filling them with any combination will lead predictive model to false direction. 
+    - As 'Own goal Time' and 'Own goals' are having > 90% missing values, 
+    filling them with any combination will lead predictive model to 
+    false direction. 
     So, dropping them is the best option.
-    - '1st Goal' is negligebly correlated with 'Man of the Match', hence, dropping this should not have any impact.
-    - Dropping 'Corners', 'Fouls Committed' and 'On-Targets' will remove high correlated elements and remove chances of multi-collinearity. 
-    These features are selected based on their low collinearity with 'Man of the Match' and high collinearity with other features.
+    - '1st Goal' is negligebly correlated with 'Man of the Match', 
+    hence, dropping this should not have any impact.
+    - Dropping 'Corners', 'Fouls Committed' and 'On-Targets' will 
+    remove high correlated elements and remove chances of multi-collinearity. 
+    These features are selected based on their low collinearity with 
+    'Man of the Match' and high collinearity with other features.
     - Dropping 'Date' as it should definately not impact a player formance.
     '''
     # ========================================================= #

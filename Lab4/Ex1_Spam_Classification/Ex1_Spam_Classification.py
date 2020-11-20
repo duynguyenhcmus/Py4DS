@@ -135,14 +135,8 @@ def main():
     df=pd.read_csv(path)
     pd.set_option("display.max_columns", 100)
     df.columns = df.columns.str.replace(' ', '')
-<<<<<<< HEAD
-    print(df.shape)
-    #Print the number of null value
-=======
-
     ##2. Print the number of null value
     print("-"*80)
->>>>>>> 2c864612f5fa166e132ff62681114db00eadfee5
     print(df.isnull().sum().sort_values(ascending = False))
     '''
         As we can see, there are no null values on the dataset.

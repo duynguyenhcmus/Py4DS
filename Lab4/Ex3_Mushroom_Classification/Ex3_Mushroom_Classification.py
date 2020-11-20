@@ -114,6 +114,7 @@ def main():
     print("*"*80)
     print(">> Describe dataset")
     print(df.describe())
+    # kurtosis, cang lon thi outlier cang lon
     # % Missing values
     print("*"*80)
     print(">> Percent of missing values in dataset after encoding")
