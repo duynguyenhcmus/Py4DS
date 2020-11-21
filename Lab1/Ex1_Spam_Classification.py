@@ -20,7 +20,7 @@ pd.set_option('display.max_colwidth',1000,'display.max_rows',None,\
              'display.max_columns',None)
 
 # Path of dataset 
-path='https://raw.githubusercontent.com/duynguyenhcmus/Pythonfordatascience/main/Week01/Py4DS_Lab1_Dataset/spam.csv'
+path='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab1/Py4DS_Lab1_Dataset/spam.csv'
 dataset_pd=pd.read_csv(path)
 dataset_np=np.genfromtxt(path,delimiter=',')
 

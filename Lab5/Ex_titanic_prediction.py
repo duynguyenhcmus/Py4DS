@@ -13,16 +13,18 @@ import seaborn as sns
 #Import ML models
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.tree import DecisionTreeClassifier
-
-#Import train_test_split function
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
 #Import scikit-learn metrics module for accuracy calculation
 from sklearn import metrics
 
 #Import LabelEncoder
 from sklearn.preprocessing import LabelEncoder
+
+#Import K-Fold Cross-Validation
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+
 
 #Label Encoder
 def label_encoder(data):
@@ -71,40 +73,43 @@ def remove_outlier(data):
     return data_out
 
 #Logistic Regression
-def logistic_regression(X_train,y_train,X_test,y_test):
+def logistic_regression(X_train,y_train,X_test, kfold):
     '''
         Purpose: Perform Logistic Regression
         Input: X_train,y_train,X_test,y_test - DataFrame
         Output: The accuracy score of logistic regression
     '''
-    lr = LogisticRegression(max_iter=2000)
+    lr = LogisticRegression(max_iter=2000,random_state=334)
     lr = lr.fit(X_train, y_train)
     y_pred = lr.predict(X_test)
-    return metrics.accuracy_score(y_test, y_pred)
+    score = cross_val_score(lr, X_train, y_train, cv=kfold, n_jobs=1, scoring='accuracy')
+    return np.mean(score), y_pred
 
 #AdaBoostClassifier
-def adaboost(X_train,y_train,X_test,y_test):
+def adaboost(X_train,y_train,X_test, kfold):
     '''
         Purpose: Perform AdaBoostClassifier
         Input: X_train,y_train,X_test,y_test - DataFrame
         Output: The accuracy score of AdaBoostClassifier
     '''
-    abc = AdaBoostClassifier()
+    abc = AdaBoostClassifier(random_state=334)
     abc = abc.fit(X_train, y_train)
     y_pred_abc = abc.predict(X_test)
-    return metrics.accuracy_score(y_test, y_pred_abc)
+    score = cross_val_score(abc, X_train, y_train, cv=kfold, n_jobs=1, scoring='accuracy')
+    return np.mean(score), y_pred_abc
 
-#Decision Tree Classifier
-def decision_tree(X_train,y_train,X_test,y_test):
+#Random Forest
+def random_forest(X_train,y_train,X_test,kfold):
     '''
-        Purpose: Perform Decision Tree Classifier
-        Input: X_train, y_train, X_test, y_test - DataFrame
-        Output: The accuracy score of Decision Tree
+        Purpose: Perform Random Forest Classifier
+        Input: X_train,y_train,X_test,y_test - DataFrame
+        Output: The accuracy score of Random Forest
     '''
-    clf = DecisionTreeClassifier()
-    clf = clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    return metrics.accuracy_score(y_test, y_pred)
+    rdf=RandomForestClassifier(random_state=334)
+    rdf.fit(X_train,y_train)
+    y_pred=rdf.predict(X_test)
+    score = cross_val_score(rdf, X_train, y_train, cv=kfold, n_jobs=1, scoring='accuracy')
+    return np.mean(score), y_pred
 
 #Main function
 def main():
@@ -202,28 +207,69 @@ Py4DS_Lab5_Dataset/titanic_train.csv'
     df=remove_outlier(df)
     print('='*80)
 
-    ##5. Splitting Data
-    X = df.drop(['Survived'], axis=1)
-    y = df['Survived']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=403)
+    ##5. Handling Test - File
+    #Loading test dataset
+    path_test='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab5/\
+Py4DS_Lab5_Dataset/titanic_test.csv'
+    df_test=pd.read_csv(path_test)
 
+    #Print test file
+    print(df_test.head())
+    print('='*80)
+
+    #Print test file information
+    print(df_test.info())
+    print('='*80)
+    '''
+        As we can see, Age, Cabin and Fare features has null value.
+    '''
+
+    #Describe test file for more information
+    print(df_test.describe())
+    print('='*80)
+    '''
+        We will fill all the null value without removing outlier or any values.
+    '''
+
+    #Fill Age null value by its median as the mean is larger than median
+    df_test['Age']=df_test['Age'].fillna(round(df_test['Age'].median()))
+
+    #Fill in Cabin null value with a new value N and take first letter the rest
+    df_test['Cabin']=df_test['Cabin'].apply(lambda x: x[0] if pd.notnull(x) else 'N')
+
+    #Fill in Fare null value with median as the median is lower than mean 
+    df_test['Fare']=df_test['Fare'].fillna(round(df_test['Fare'].median()))
+
+    #Label encoding
+    df_test=label_encoder(df_test)
+
+    #Drop PassengerId columns
+    X_test_id = df_test['PassengerId']
+    X_test=df_test.drop(['PassengerId'],axis=1)
+
+    
+    #Processing X_train, y_train, X_test, y_test
+    X_train = df.drop(['Survived'], axis=1)
+    y_train = df['Survived']
+
+    k_fold = KFold(n_splits=10, shuffle=True, random_state=7)
     ##6. Build Models
     #Logistic Regression
-    accuracy_logistic=logistic_regression(X_train,y_train,X_test,y_test)
+    accuracy_logistic, y_pred_lr=logistic_regression(X_train,y_train,X_test,k_fold)
     print("Accuracy of Logistic Regression: ",accuracy_logistic)
 
     #Ada Boost Classifier
-    accuracy_ada=adaboost(X_train,y_train,X_test,y_test)
+    accuracy_ada, y_pred_abc=adaboost(X_train,y_train,X_test,k_fold)
     print("Accuracy of AdaBoostClassifier: ", accuracy_ada)
 
-    #Decision Tree Classifier
-    accuracy_decision=decision_tree(X_train,y_train,X_test,y_test)
-    print("Accuracy of Decision Tree: ",accuracy_decision)
+    #Random Forest
+    accuracy_forest, y_pred_rdf=random_forest(X_train,y_train,X_test,k_fold)
+    print("Accuracy of Random Forest: ",accuracy_forest)
     '''
         Summary:
-            Accuracy of Logistic Regression:  0.9
-            Accuracy of AdaBoostClassifier:  0.86
-            Accuracy of Decision Tree:  0.85
+            Accuracy of Logistic Regression:  0.8275510204081632
+            Accuracy of AdaBoostClassifier:  0.8033877551020409
+            Accuracy of Random Forest:  0.8174693877551021
     '''
 
 if __name__ == '__main__':
