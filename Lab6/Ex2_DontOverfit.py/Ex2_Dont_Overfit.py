@@ -199,7 +199,7 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
 
     #We plot the heatmap of features of train dataset to see the corr()
     print('Plot the heatmap to see the correlation between features')
-    #correlation_plot(df_train)
+    correlation_plot(df_train)
     print('='*80)
     '''
         It seems like all the features is uncorrelatec with others. So we cann't
