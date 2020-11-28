@@ -30,7 +30,7 @@ def logistic_regression(X_train,y_train,X_test):
         Input: X_train,y_train,X_test - DataFrame
         Output: the prediction of X_test - Dataframe
     '''
-    lr = LogisticRegression(max_iter=2000,random_state=1)
+    lr = LogisticRegression(max_iter=10000,random_state=1)
     lr = lr.fit(X_train, y_train)
     y_pred = lr.predict(X_test)
     return y_pred
@@ -55,7 +55,7 @@ def variancethreshold(data):
         Output: data_out - DataFrame - Dataframe has feature-selected,
         features - Series - selected features
     '''
-    selection=VarianceThreshold(threshold = 0.99)
+    selection=VarianceThreshold(threshold = 100)
     data_out=selection.fit_transform(data)
     features = data.columns[selection.get_support()]
     return data_out,features
@@ -68,43 +68,14 @@ def mutual(data):
         Output: data_out-Dataframe-Transformed DataFrame, 
         features-Series-selected features
     '''
-    x_train=data.drop(['id','target'],axis=1)
-    y_train=data['target']
+    x_train=data.drop(['ID','TARGET'],axis=1)
+    y_train=data['TARGET']
     numerical_x_train = x_train[x_train.select_dtypes([np.number]).columns]
     selection = SelectKBest(mutual_info_classif, k=10)
     data_out=selection.fit_transform(numerical_x_train, y_train)
     features = x_train.columns[selection.get_support()]
     return data_out,features
 
-#Removing Outlier
-def remove_outlier(data):
-    '''
-        Purpose: helping remove outliers of the dataset.
-        Param: data - DataFrame
-        Output: DataFrame that is outlier-removed
-    '''
-    Q1 = data.quantile(0.25)
-    Q3 = data.quantile(0.75)
-    IQR = Q3 - Q1
-    data_out = data[~((data<(Q1-1.5*IQR))|(data>(Q3+1.5*IQR))).any(axis=1)]
-    print('> Shape of data before handling outlier values: ', data.shape)
-    print('> Shape of data after handling outlier values: ', data_out.shape)
-    return data_out
-
-#Heatmap correlation plot
-def correlation_plot(data):
-    '''
-        Purpose: Plot the heatmap to see the correlation between features
-        Input: data - Dataframe
-        Output: the heatmap plot for correlation
-    '''
-    plt.figure(figsize=(15,15))
-    corr = data.corr()
-    sns.heatmap(corr, xticklabels=corr.columns, yticklabels=corr.columns,\
-         linewidths=.1, cmap="Reds", annot=False)
-    plt.tight_layout()
-    plt.savefig("Heatmap-dontoverfit.jpg")
-    
 #Principal Component Analysis
 def pca(data):
     '''
@@ -125,7 +96,7 @@ def selectfrommodel(X_train,y_train):
         Output: model_features - Dataframe-transformed DataFrame,
          features - Series - selected features
     '''
-    rfc = RandomForestClassifier(n_estimators=100)
+    rfc = RandomForestClassifier(n_estimators=50)
     select_model =SelectFromModel(estimator=rfc)
     fit = select_model.fit(X_train, y_train)
     model_features = fit.transform(X_train)
@@ -139,25 +110,25 @@ def recursive(x_train,y_train,x_test):
         Input: x_train, y_train, x_test - DataFrame
         Output: y_pred - Series - Prediction of RFE
     '''
-    rfc = RandomForestClassifier(n_estimators=100)
+    rfc = RandomForestClassifier(n_estimators=50)
     rfe = RFE(estimator=rfc, n_features_to_select=3)
     rfe.fit(x_train, y_train)
     y_pred=rfe.predict(x_test)
     return y_pred
 
-#Main function
+#Main Function
 def main():
-    #Load Dataset
-    path_train='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/\
-Lab6/Py4DS_Lab6_Dataset/train.csv'
+    #Load dataset
+    path_train='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab6/\
+Py4DS_Lab6_Dataset/Santander_train.csv'
     df_train=pd.read_csv(path_train)
 
-    path_test='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/\
-Lab6/Py4DS_Lab6_Dataset/test.csv'
+    path_test='https://raw.githubusercontent.com/duynguyenhcmus/Py4DS/main/Lab6/\
+Py4DS_Lab6_Dataset/Santander_test.csv'
     df_test=pd.read_csv(path_test)
 
     #Pandas Options
-    pd.set_option("display.max_columns", 100)
+    pd.set_option("display.max_columns", 100,"display.max_rows",100)
 
     #Print the head of df_train
     print('The train dataset')
@@ -192,30 +163,15 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
         print('There are null values in the test dataset')
         print(df_test[df_test.isnull().sum()!=0])
     print('='*80)
-
     '''
-        As we can notice, there are over 300 columns. So we will do feature
+        As we can notice, there are over 370 columns. So we will do feature
         selection and Dimensionality Reduction to reduce the number of features
     '''
 
-    #We plot the heatmap of features of train dataset to see the corr()
-    print('Plot the heatmap to see the correlation between features')
-    correlation_plot(df_train)
-    print('='*80)
-    '''
-        It seems like all the features is uncorrelatec with others. So we cann't
-        remove any features here
-    '''
-
-    #Removing Outliers
-    print('Removing Outliers')
-    df_train=remove_outlier(df_train)
-    print('='*80)
-
     #Split data
-    x_train=df_train.drop(['id','target'],axis=1)
-    y_train=df_train['target']
-    x_test=df_test.drop(['id'],axis=1)
+    x_train=df_train.drop(['TARGET'],axis=1)
+    y_train=df_train['TARGET']
+    x_test=df_test
 
     #Now, we will use some dimensionality reduction and feature selection
     ##1. Perform Variance Threshold
@@ -233,8 +189,8 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
     y_pred_variance=random_forest(x_train_var,y_train_var,x_test_var)
     print('The result of Variance Threshold: ')
     data_pred_variance=pd.DataFrame(y_pred_variance)
-    result_variance=pd.concat([df_test[['id']],data_pred_variance],axis=1)
-    result_variance.columns=['id','target']
+    result_variance=pd.concat([df_test[['ID']],data_pred_variance],axis=1)
+    result_variance.columns=['ID','TARGET']
     print(result_variance)
     print('='*80)
 
@@ -246,15 +202,15 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
 
     #Processing data for models
     x_train_mutual=train_mutual
-    y_train_mutual=df_train['target']
+    y_train_mutual=df_train['TARGET']
     x_test_mutual=df_test[features_mutual]
 
     #Build Model
     y_pred_mutual=random_forest(x_train_mutual,y_train_mutual,x_test_mutual)
     print('The result of Mutual Information: ')
     data_pred_mutual=pd.DataFrame(y_pred_mutual)
-    result_mutual=pd.concat([df_test[['id']],data_pred_mutual],axis=1)
-    result_mutual.columns=['id','target']
+    result_mutual=pd.concat([df_test[['ID']],data_pred_mutual],axis=1)
+    result_mutual.columns=['ID','TARGET']
     print(result_mutual)
     print('='*80)
 
@@ -269,12 +225,12 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
     y_pred_pca=random_forest(x_pca_train,y_train,x_pca_test)
     print('The result of Principal Component Analysis: ')
     data_pred_pca=pd.DataFrame(y_pred_pca)
-    result_pca=pd.concat([df_test[['id']],data_pred_pca],axis=1)
-    result_pca.columns=['id','target']
+    result_pca=pd.concat([df_test[['ID']],data_pred_pca],axis=1)
+    result_pca.columns=['ID','TARGET']
     print(result_pca)
     print('='*80)
 
-    ##4. Perform Select From Model
+    #4. Perform Select From Model
     print('Perform Select From Model')
     x_train_select,features_select=selectfrommodel(x_train,y_train)
     print('Shape of dataset before select from model: ',x_train.shape)
@@ -287,8 +243,8 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
     y_pred_select=logistic_regression(x_train_select,y_train,x_test_select)
     print('The result of Select From Model: ')
     data_pred_select=pd.DataFrame(y_pred_select)
-    result_select=pd.concat([df_test[['id']],data_pred_select],axis=1)
-    result_select.columns=['id','target']
+    result_select=pd.concat([df_test[['ID']],data_pred_select],axis=1)
+    result_select.columns=['ID','TARGET']
     print(result_select)
     print('='*80)
 
@@ -299,8 +255,8 @@ Lab6/Py4DS_Lab6_Dataset/test.csv'
     #Print the result
     print('The result of Recursive Feature Elimination: ')
     data_pred_recursive=pd.DataFrame(y_pred_recursive)
-    result_recursive=pd.concat([df_test[['id']],data_pred_recursive],axis=1)
-    result_recursive.columns=['id','target']
+    result_recursive=pd.concat([df_test[['ID']],data_pred_recursive],axis=1)
+    result_recursive.columns=['ID','TARGET']
     print(result_recursive)
     print('='*80)
 
