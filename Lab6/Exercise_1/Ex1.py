@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
 def constant_features(x_train, x_test, threshold=0):
     """
@@ -166,7 +167,7 @@ def statistical_ranking_filter(number_feature, x_train, x_test, y_train, y_test,
     
     return selection_train.transform(x_train), selection_test.transform(x_test)
 
-def selection_from_model(model, x_train, x_test, y_Train):
+def selection_from_model(model, x_train, x_test, y_train):
     """
     Using Select From Model 
     Input:  model (object):  model from sklearn
@@ -195,7 +196,7 @@ def PCA(x_train, x_test, n_components=2):
     pca.fit(x_train)
     return pca.transform(x_train), pca.transform(x_test)
 
-def RFE(method, x_train, x_test, y_train, y_test):
+def RFE(method, n_features, x_train, x_test, y_train, y_test):
     """
     Perform recursive feature elimination (RFE)
     Input:  model (object):  model from sklearn
@@ -205,7 +206,7 @@ def RFE(method, x_train, x_test, y_train, y_test):
     """
     from sklearn.feature_selection import RFE
     # define model
-    rfe = RFE(estimator=method, n_features_to_select=3)
+    rfe = RFE(estimator=method, n_features_to_select=n_features)
     # fit the model
     rfe.fit(x_train, y_train)
     # transform the data
@@ -213,6 +214,7 @@ def RFE(method, x_train, x_test, y_train, y_test):
 
 def main():
     # ======================= Test constant features filter =======================
+    print("======================= Test constant features filter =======================")
     print("="*80)
     # Create data to test
     data = pd.DataFrame({'a' : [0,1,2,3], 'b' : [0,0,0,0], 'c' : [4,3,2,1], 'd' : [0,1,0,1]})
@@ -246,6 +248,7 @@ def main():
     print(x_test)
 
     # ======================= Test quasi-constant features filter =======================
+    print("======================= Test quasi-constant features filter =======================")
     print("="*80)
     # Create data to test
     data = pd.DataFrame({'a' : [0,1,2,3], 'b' : [0,0,1,0], 'c' : [4,3,2,1], 'd' : [0,1,0,1]})
@@ -279,6 +282,7 @@ def main():
     print(x_test)
 
     # ======================= Test duplicated_features function =======================
+    print("======================= Test duplicated_features function =======================")
     print("="*80)
     # Create data to test
     data = pd.DataFrame({'a' : [1,1,2,3], 'b' : [1,1,0,0], 'c' : [1,1,2,3], 'd' : [0,1,0,1]})
@@ -312,6 +316,7 @@ def main():
     print(x_test)    
 
     # ======================= Test correlation_filter function =======================
+    print("======================= Test correlation_filter function =======================")
     # Set random state for random data
     rds = np.random.RandomState(0)
     # Create data to test
@@ -350,10 +355,12 @@ def main():
     print(x_test)    
 
     # ======================= Test mutual information method =======================
+    print("======================= Test mutual information method =======================")
     # Create data to test
-    data = pd.DataFrame({'a' : rds.randn(10), 'b' : rds.randn(10),\
-                            'c' : rds.randn(10), 'e' : rds.randn(10),\
-                            'd' : rds.binomial(1, 0.3, size = 10)})
+    data = pd.DataFrame({'a' : rds.randn(5), 'b' : rds.randn(5),\
+                         'c' : rds.randn(5), 'e' : rds.randn(5),\
+                         'd' : rds.binomial(1, 0.3, size = 5)})
+    # Append 2 columns correlation with columns a and b
     data['f'] = 10*data['a']
     data['g'] = 10*data['a'] + data['b']
     print("Testing data: ")
@@ -366,8 +373,7 @@ def main():
     X, y = data.drop('d', axis = 1), data['d']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
 
-    # Display data before removing correlated features
-    print('='*80)
+    # Display data before applying mutual information method
     print('>> Before applying mutual information method:')
     print('>> X_train:')
     print(X_train)
@@ -384,6 +390,165 @@ def main():
     print(x_train)
     print('>> X_test:')
     print(x_test)    
+
+    # ======================= Test chi square method =======================
+    print("======================= Test chi square method =======================")
+    # Create data to test
+    data = pd.DataFrame({'a' : np.abs(rds.randn(5)), 'b' : np.abs(rds.randn(5)),\
+                         'c' : np.abs(rds.randn(5)), 'e' : np.abs(rds.randn(5)),\
+                         'd' : rds.binomial(1, 0.3, size = 5)})
+    # Append 2 columns correlation with columns a and b
+    data['f'] = 10*data['a']
+    data['g'] = 10*data['a'] + data['b']
+    print("Testing data: ")
+    print(data)
+    print('='*80)
+    print(">> Information of data: ")
+    print(data.info())
+
+    # Split data
+    X, y = data.drop('d', axis = 1), data['d']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+    # Display data before applying chi square method
+    print('='*80)
+    print('>> Before applying chi square method:')
+    print('>> X_train:')
+    print(X_train)
+    print('>> X_test:')
+    print(X_test)
+    print("="*80)
+
+    # Perform chi square method
+    x_train, x_test = statistical_ranking_filter(4, X_train, X_test, y_train, y_test, method='chi2')
+
+    # Display data after applying method
+    print('>> After applying chi square method:')
+    print('>> X_train:')
+    print(x_train)
+    print('>> X_test:')
+    print(x_test)    
+
+    # ======================= Test select_from_model function =======================
+    print("======================= Test select_from_model function =======================")
+    # Create data to test
+    data = pd.DataFrame({'a' : np.abs(rds.randn(5)), 'b' : np.abs(rds.randn(5)),\
+                         'c' : np.abs(rds.randn(5)), 'e' : np.abs(rds.randn(5)),\
+                         'd' : rds.binomial(1, 0.3, size = 5)})
+    # Append 2 columns correlation with columns a and b
+    data['f'] = 10*data['a']
+    data['g'] = 10*data['a'] + data['b']
+    print("Testing data: ")
+    print(data)
+    print('='*80)
+    print(">> Information of data: ")
+    print(data.info())
+
+    # Split data
+    X, y = data.drop('d', axis = 1), data['d']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+    # Display data before applying Select from Model method
+    print('='*80)
+    print('>> Before applying Select from Model method:')
+    print('>> X_train:')
+    print(X_train)
+    print('>> X_test:')
+    print(X_test)
+    print("="*80)
+
+    # define model
+    rfc = RandomForestClassifier(n_estimators=100)
+
+    # Perform Select from Model method
+    x_train, x_test = selection_from_model(rfc, X_train, X_test, y_train)
+
+    # Display data after applying method
+    print('>> After applying Select from Model method:')
+    print('>> X_train:')
+    print(x_train)
+    print('>> X_test:')
+    print(x_test)    
+
+    # ======================= Test PCA function =======================
+    print("======================= Test PCA function =======================")
+    # Create data to test
+    data = pd.DataFrame({'a' : np.abs(rds.randn(5)), 'b' : np.abs(rds.randn(5)),\
+                         'c' : np.abs(rds.randn(5)), 'e' : np.abs(rds.randn(5)),\
+                         'd' : rds.binomial(1, 0.3, size = 5)})
+    # Append 2 columns correlation with columns a and b
+    data['f'] = 10*data['a']
+    data['g'] = 10*data['a'] + data['b']
+    print("Testing data: ")
+    print(data)
+    print('='*80)
+    print(">> Information of data: ")
+    print(data.info())
+
+    # Split data
+    X, y = data.drop('d', axis = 1), data['d']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+    # Display data before applying PCA method
+    print('='*80)
+    print('>> Before applying PCA method:')
+    print('>> X_train:')
+    print(X_train)
+    print('>> X_test:')
+    print(X_test)
+    print("="*80)
+
+    # Perform mutual information method
+    x_train, x_test = PCA(X_train, X_test, 2)
+    print(type(x_train))
+    # Display data after applying method
+    print('>> After applying PCA method:')
+    print('>> X_train:')
+    print(x_train)
+    print('>> X_test:')
+    print(x_test)    
+
+    # ======================= Test RFE function =======================
+    print("======================= Test RFE function =======================")
+    # Create data to test
+    data = pd.DataFrame({'a' : np.abs(rds.randn(5)), 'b' : np.abs(rds.randn(5)),\
+                         'c' : np.abs(rds.randn(5)), 'e' : np.abs(rds.randn(5)),\
+                         'd' : rds.binomial(1, 0.3, size = 5)})
+    # Append 2 columns correlation with columns a and b
+    data['f'] = 10*data['a']
+    data['g'] = 10*data['a'] + data['b']
+    print("Testing data: ")
+    print(data)
+    print('='*80)
+    print(">> Information of data: ")
+    print(data.info())
+
+    # Split data
+    X, y = data.drop('d', axis = 1), data['d']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+    # Display data before applying RFE method
+    print('='*80)
+    print('>> Before applying RFE method:')
+    print('>> X_train:')
+    print(X_train)
+    print('>> X_test:')
+    print(X_test)
+    print("="*80)
+
+    # define model
+    rfc = RandomForestClassifier(n_estimators=100)
+
+    # Perform mutual information method
+    x_train, x_test = RFE(rfc, 3, X_train, X_test, y_train, y_test)
+
+    # Display data after applying method
+    print('>> After applying RFE method:')
+    print('>> X_train:')
+    print(x_train)
+    print('>> X_test:')
+    print(x_test)    
+
 
 
 if __name__ == "__main__":
