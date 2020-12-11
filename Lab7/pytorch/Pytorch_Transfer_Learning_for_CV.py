@@ -1,3 +1,16 @@
+# =========================================================================== #
+'''
+                            Lab07: Using Pytorch
+                Project: Transfer Learning for Computer Vision 
+    - Purpose: Learn how to train a convolutional neural network for image 
+    classification using transfer learning.
+    - Problem: Train a model to classify ants and bees.
+    - Input: 
+        + About 120 training images each for ants and bees. 
+        + 75 validation images for each class.
+    - Output: classified images. 
+'''
+# =========================================================================== #
 from __future__ import print_function, division
 
 import torch
@@ -13,7 +26,15 @@ import os
 import copy
 
 def imshow(inp, title=None):    
-    """Imshow for Tensor."""
+    '''
+        Purpose: Show a few images.
+        Input: 
+            - inp : tourch.Tensor
+
+            - title : string/list of strings
+                label's names of images
+        Output: 
+    '''
     inp = inp.numpy().transpose((1, 2, 0))
     mean = np.array([0.485, 0.456, 0.406])
     std = np.array([0.229, 0.224, 0.225])
@@ -22,9 +43,25 @@ def imshow(inp, title=None):
     plt.imshow(inp)
     if title is not None:
         plt.title(title)
+    
     plt.pause(0.001)  # pause a bit so that plots are updated
 
-def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dataset_sizes, num_epochs=25):
+def train_model(model, criterion, optimizer, scheduler, dataloaders, device,\ 
+                dataset_sizes, num_epochs=25):
+    '''
+        Purpose: 
+        Input: 
+            - model : 
+            - criterion :
+            - optimizer :
+            - scheduler :
+            - dataloaders :
+            - device :
+            - dataset_sizes :
+            - num_epochs : int (default = 25)
+                
+        Output: 
+    '''
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -93,6 +130,17 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, dat
     return model
 
 def visualize_model(model, dataloaders, device, class_names, num_images=6):
+    '''
+        Purpose: 
+        Input: 
+            - model : tourch.Tensor
+            - dataloaders :
+            - device : 
+            - class_names :
+            - num_images : int (default = 6)
+                
+        Output: 
+    '''
     was_training = model.training
     model.eval()
     images_so_far = 0
@@ -121,7 +169,10 @@ def visualize_model(model, dataloaders, device, class_names, num_images=6):
 def main():
     plt.ion()   # interactive mode
     # ======================================================================= #
-
+    ''' 
+        LOADING DATA
+        We use torchvision and torch.utils.data packages for loading the data.
+    '''
     # ======================================================================= #
     # Data augmentation and normalization for training
     # Just normalization for validation
@@ -141,29 +192,36 @@ def main():
     }
 
     data_dir = 'data/hymenoptera_data'
-    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                            data_transforms[x])
+    image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),\
+                                            data_transforms[x])\
                     for x in ['train', 'val']}
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                                shuffle=True, num_workers=4)
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,\
+                                                shuffle=True, num_workers=4)\
                 for x in ['train', 'val']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
     class_names = image_datasets['train'].classes
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # ======================================================================= #
 
+    # ======================================================================= #
+    ''' 
+        VISUALIZING A FEW TRAINING IMAGES
+    '''
     # ======================================================================= #
     # Get a batch of training data
     inputs, classes = next(iter(dataloaders['train']))
 
     # Make a grid from batch
     out = torchvision.utils.make_grid(inputs)
-    plt.figure(figsize = (20,20))
+    print(type(out))
+    plt.figure(figsize = (10,10))
     imshow(out, title=[class_names[x] for x in classes])
     
     # ======================================================================= #
-
+    '''
+        FINETUNING THE CONVNET
+        Load a pretrained model and reset final fully conneted layer.
+    '''
     # ======================================================================= #
     model_ft = models.resnet18(pretrained=True)
     num_ftrs = model_ft.fc.in_features
@@ -180,17 +238,27 @@ def main():
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-    # ======================================================================= #
-    visualize_model(model_ft, dataloaders, device, class_names)
-    # ======================================================================= #
-    model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, dataloaders, device, dataset_sizes, num_epochs=25)
 
+    # ======================================================================= #
+    '''
+        RAINING AND EVALUATING
+    '''
+    # ======================================================================= #
+    model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,\
+                           dataloaders, device, dataset_sizes, num_epochs=25)
+
+    # Visualize the model predictions
+    visualize_model(model_ft, dataloaders, device, class_names)
+
+    # ======================================================================= #
+    '''
+        CONVNET AS FIXED FEATURE EXTRACTOR
+    '''
+    # ======================================================================= #
     model_conv = torchvision.models.resnet18(pretrained=True)
     for param in model_conv.parameters():
         param.requires_grad = False
-    # ======================================================================= #
 
-    # ======================================================================= #
     # Parameters of newly constructed modules have requires_grad=True by default
     num_ftrs = model_conv.fc.in_features
     model_conv.fc = nn.Linear(num_ftrs, 2)
@@ -205,14 +273,19 @@ def main():
 
     # Decay LR by a factor of 0.1 every 7 epochs
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer_conv, step_size=7, gamma=0.1)
-    # ======================================================================= #
 
     # ======================================================================= #
+    '''
+        TRAINING AND EVALUATING
+    '''
+    # ======================================================================= #
+    model_conv = train_model(model_conv, criterion, optimizer_conv, exp_lr_scheduler,\
+                             dataloaders, device, dataset_sizes, num_epochs=25)
+
     visualize_model(model_conv, dataloaders, device, class_names)
 
     plt.ioff()
     plt.show()
-    # plt.pause(0)
 
 if __name__ == "__main__":
     main()
