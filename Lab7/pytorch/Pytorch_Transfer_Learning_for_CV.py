@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import time
 import os
 import copy
+import cv2
 
 def imshow(inp, title=None):    
     '''
@@ -33,7 +34,7 @@ def imshow(inp, title=None):
 
             - title : string/list of strings
                 label's names of images
-        Output: 
+        Output: images with title
     '''
     inp = inp.numpy().transpose((1, 2, 0))
     mean = np.array([0.485, 0.456, 0.406])
@@ -46,21 +47,28 @@ def imshow(inp, title=None):
     
     plt.pause(0.001)  # pause a bit so that plots are updated
 
-def train_model(model, criterion, optimizer, scheduler, dataloaders, device,\ 
+def train_model(model, criterion, optimizer, scheduler, dataloaders, device,
                 dataset_sizes, num_epochs=25):
     '''
-        Purpose: 
+        Purpose: train a model
         Input: 
-            - model : 
-            - criterion :
-            - optimizer :
-            - scheduler :
-            - dataloaders :
-            - device :
-            - dataset_sizes :
+            - model : torchvision.models.resnet.ResNet
+                torchvision model is needed to visualize
+            - criterion : object
+                criterion to train
+            - optimizer : object
+                Observe that parameters are being optimized
+            - scheduler : object
+                scheduler object is applied
+            - dataloaders : dict of data
+                input data to apply model
+            - device : torch.device
+                the compatible device
+            - dataset_sizes : dict
+                size of dataset
             - num_epochs : int (default = 25)
-                
-        Output: 
+                number of epochs
+        Output: model after training
     '''
     since = time.time()
 
@@ -131,15 +139,19 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device,\
 
 def visualize_model(model, dataloaders, device, class_names, num_images=6):
     '''
-        Purpose: 
+        Purpose: visualize the result after applying model
         Input: 
-            - model : tourch.Tensor
-            - dataloaders :
-            - device : 
-            - class_names :
+            - model : torchvision.models.resnet.ResNet
+                torchvision model is needed to visualize
+            - dataloaders : dict of data
+                input data to apply model
+            - device : torch.device
+                the compatible device
+            - class_names : list of strings
+                names of class
             - num_images : int (default = 6)
-                
-        Output: 
+                number of images to show
+        Output: images with predicted class
     '''
     was_training = model.training
     model.eval()
@@ -202,7 +214,7 @@ def main():
     class_names = image_datasets['train'].classes
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+    print(type(dataset_sizes))
     # ======================================================================= #
     ''' 
         VISUALIZING A FEW TRAINING IMAGES
@@ -213,7 +225,6 @@ def main():
 
     # Make a grid from batch
     out = torchvision.utils.make_grid(inputs)
-    print(type(out))
     plt.figure(figsize = (10,10))
     imshow(out, title=[class_names[x] for x in classes])
     
@@ -241,9 +252,10 @@ def main():
 
     # ======================================================================= #
     '''
-        RAINING AND EVALUATING
+        TRAINING AND EVALUATING
     '''
     # ======================================================================= #
+    print(">> Training and evaluating model.")
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,\
                            dataloaders, device, dataset_sizes, num_epochs=25)
 
@@ -253,6 +265,9 @@ def main():
     # ======================================================================= #
     '''
         CONVNET AS FIXED FEATURE EXTRACTOR
+        Here, we need to freeze all the network except the final layer. 
+        We need to set requires_grad == False to freeze the parameters 
+        so that the gradients are not computed in backward().
     '''
     # ======================================================================= #
     model_conv = torchvision.models.resnet18(pretrained=True)
@@ -279,6 +294,7 @@ def main():
         TRAINING AND EVALUATING
     '''
     # ======================================================================= #
+    print(">> Training and evaluating model after frezze all the network except final layer.")
     model_conv = train_model(model_conv, criterion, optimizer_conv, exp_lr_scheduler,\
                              dataloaders, device, dataset_sizes, num_epochs=25)
 
